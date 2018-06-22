@@ -1,13 +1,8 @@
-# coding: utf-8
 
-from the_tale.game.tests.helpers import ComplexChangeTaskMixin
+import smart_imports
 
-from the_tale.game.abilities.postponed_tasks import UseAbilityTask
-
+smart_imports.all()
 
 
-class UseAbilityTaskMixin(ComplexChangeTaskMixin):
-    LOGIC = UseAbilityTask
-
-    # @property
-    # def PROCESSOR(self): return self.ABILITY.TYPE
+class UseAbilityTaskMixin(game_tests_helpers.ComplexChangeTaskMixin):
+    LOGIC = postponed_tasks.UseAbilityTask

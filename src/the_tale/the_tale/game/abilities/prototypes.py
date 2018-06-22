@@ -1,9 +1,7 @@
 
-from the_tale.amqp_environment import environment
+import smart_imports
 
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.game import tt_api_energy
+smart_imports.all()
 
 
 class AbilityPrototype(object):
@@ -36,7 +34,7 @@ class AbilityPrototype(object):
 
         task = PostponedTaskPrototype.create(ability_task)
 
-        environment.workers.supervisor.cmd_logic_task(hero.account_id, task.id)
+        amqp_environment.environment.workers.supervisor.cmd_logic_task(hero.account_id, task.id)
 
         return task
 

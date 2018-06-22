@@ -1,15 +1,16 @@
 {
-    "rules_order": ["rule_predefined_names",
-                    "rule_custom",
+    "rules_order": ["rule_custom",
                     "rule_local_modules",
                     "rule_prefix",
                     "rule_parent_modules",
-                    "rule_stdlib"],
+                    "rule_stdlib",
+                    "rule_predefined_names"],
 
     "rules": {"rule_predefined_names": {},
               "rule_local_modules": {},
               "rule_parent_modules": {
-                  "suffixes": ["tests"]
+                  "suffixes": ["tests",
+                               "deck"]
               },
               "rule_prefix": {
                   "prefixes": [
@@ -34,7 +35,8 @@
                       {"prefix": "utils_", "module": "the_tale.common.utils"},
                       {"prefix": "utg_", "module": "utg"},
                       {"prefix": "rels_", "module": "rels"},
-                      {"prefix": "questgen_", "module": "questgen"}
+                      {"prefix": "questgen_", "module": "questgen"},
+                      {"prefix": "pvp_", "module": "the_tale.game.pvp"}
                   ]
               },
               "rule_custom": {
@@ -120,7 +122,9 @@
                       "cards_types": {"module": "the_tale.game.cards.cards"},
 
                       "linguistics_helpers": {"module": "the_tale.linguistics.tests.helpers"},
-                      "blogs_helpers": {"module": "the_tale.blogs.tests.helpers"}
+                      "blogs_helpers": {"module": "the_tale.blogs.tests.helpers"},
+
+                      "game_tests_helpers": {"module": "the_tale.game.tests.helpers"}
 
                   }
               },

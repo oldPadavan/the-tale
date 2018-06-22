@@ -1,33 +1,24 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils.testcase import TestCase
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-from the_tale.game import tt_api_energy
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
-
-from the_tale.game.abilities.relations import ABILITY_TYPE
-from the_tale.game.abilities.deck import ABILITIES
-
-ABILITY_TASK_STATE = ComplexChangeTask
+smart_imports.all()
 
 
-class PrototypesTests(TestCase):
+ABILITY_TASK_STATE = game_postponed_tasks.ComplexChangeTask
+
+
+class PrototypesTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(PrototypesTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.ability = ABILITIES[ABILITY_TYPE.HELP]()
+        self.ability = deck.ABILITIES[relations.ABILITY_TYPE.HELP]()
 
         self.task_data = {}
 
