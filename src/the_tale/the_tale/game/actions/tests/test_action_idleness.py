@@ -1,31 +1,18 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.balance import constants as c
-from the_tale.game import turn
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.abilities.relations import HELP_CHOICES
-
-from the_tale.game.roads.storage import roads_storage
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.actions import prototypes
+smart_imports.all()
 
 
-class IdlenessActionTest(testcase.TestCase):
+class IdlenessActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(IdlenessActionTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account(is_fast=True)
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
 
         self.hero = self.storage.accounts_to_heroes[self.account.id]
@@ -160,16 +147,16 @@ class IdlenessActionTest(testcase.TestCase):
 
     def test_help_choices__contain_start_quest(self):
         self.action_idl.percents = 0.0
-        self.assertTrue(HELP_CHOICES.START_QUEST in self.action_idl.HELP_CHOICES)
+        self.assertTrue(abilities_relations.HELP_CHOICES.START_QUEST in self.action_idl.HELP_CHOICES)
 
     def test_help_choices__start_quest_removed(self):
         self.action_idl.percents = 1.0
-        self.assertFalse(HELP_CHOICES.START_QUEST in self.action_idl.HELP_CHOICES)
+        self.assertFalse(abilities_relations.HELP_CHOICES.START_QUEST in self.action_idl.HELP_CHOICES)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_return_from_road__after_quest(self):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.QUEST
-        self.hero.position.set_road(list(roads_storage.all())[0], percents=0.5)
+        self.hero.position.set_road(list(roads_storage.roads_storage.all())[0], percents=0.5)
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.number, 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveToPrototype.TYPE)
@@ -185,7 +172,7 @@ class IdlenessActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_return_from_road__after_resurrect(self):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.RESURRECT
-        self.hero.position.set_road(list(roads_storage.all())[0], percents=0.5)
+        self.hero.position.set_road(list(roads_storage.roads_storage.all())[0], percents=0.5)
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.number, 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveToPrototype.TYPE)

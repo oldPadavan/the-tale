@@ -1,37 +1,19 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.relations import HABIT_HONOR_INTERVAL
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.balance import constants as c
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.logic import create_test_map
-from the_tale.game import turn
-
-from the_tale.game.abilities.relations import HELP_CHOICES
-
-from the_tale.game.actions import prototypes
-from the_tale.game.actions.tests.helpers import ActionEventsTestsMixin
+smart_imports.all()
 
 
-class BaseMoveToActionTest(testcase.TestCase):
+class BaseMoveToActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(BaseMoveToActionTest, self).setUp()
 
-        self.p1, self.p2, self.p3 = create_test_map()
+        self.p1, self.p2, self.p3 = game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
@@ -44,7 +26,7 @@ class BaseMoveToActionTest(testcase.TestCase):
 
 
 @mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 0)
-class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
+class MoveToActionTest(BaseMoveToActionTest, helpers.ActionEventsTestsMixin):
 
     def setUp(self):
         super(MoveToActionTest, self).setUp()
@@ -61,11 +43,11 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
     def test_help_choices(self):
         self.assertNotEqual(self.action_move.state, self.action_move.STATE.MOVING)
 
-        self.assertFalse(HELP_CHOICES.TELEPORT in self.action_move.HELP_CHOICES)
+        self.assertFalse(abilities_relations.HELP_CHOICES.TELEPORT in self.action_move.HELP_CHOICES)
 
         self.action_move.state = self.action_move.STATE.MOVING
 
-        self.assertTrue(HELP_CHOICES.TELEPORT in self.action_move.HELP_CHOICES)
+        self.assertTrue(abilities_relations.HELP_CHOICES.TELEPORT in self.action_move.HELP_CHOICES)
 
 
     def test_processed(self):
@@ -406,19 +388,18 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
 
-
 @mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 0)
-class MoveToActionWithBreaksTest(testcase.TestCase):
+class MoveToActionWithBreaksTest(utils_testcase.TestCase):
 
     FIRST_BREAK_AT = 0.75
 
     def setUp(self):
         super(MoveToActionWithBreaksTest, self).setUp()
-        self.p1, self.p2, self.p3 = create_test_map()
+        self.p1, self.p2, self.p3 = game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
         self.action_idl = self.hero.actions.current_action
@@ -507,7 +488,7 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
 
 
 
-@mock.patch('the_tale.game.heroes.habits.Honor.interval', HABIT_HONOR_INTERVAL.RIGHT_3)
+@mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.RIGHT_3)
 @mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 1.01)
 class MoveToActionPickedUpTest(BaseMoveToActionTest):
 

@@ -1,37 +1,31 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.actions.prototypes import ActionFirstStepsPrototype
-from the_tale.game import turn
+smart_imports.all()
 
 
-class FirstStepsActionTest(testcase.TestCase):
+class FirstStepsActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(FirstStepsActionTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
 
         with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
-            self.action_first_steps = ActionFirstStepsPrototype.create(hero=self.hero)
-
+            self.action_first_steps = prototypes.ActionFirstStepsPrototype.create(hero=self.hero)
 
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
         self.assertEqual(self.action_first_steps.leader, True)
         self.assertEqual(self.action_first_steps.bundle_id, self.action_idl.bundle_id)
         self.storage._test_save()
-
 
     def test_processed(self):
 

@@ -1,46 +1,19 @@
 
-from unittest import mock
+import smart_imports
 
-import random
-
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-from the_tale.game.companions import relations as companions_relations
-from the_tale.game.companions.abilities import effects
-from the_tale.game.companions.abilities import container
+smart_imports.all()
 
 
-from the_tale.game.balance import constants as c
-from the_tale.game.balance.power import Power
-from the_tale.game import relations as game_relations
-
-from the_tale.game.mobs import storage as mobs_storage
-from the_tale.game.mobs import objects as mobs_objects
-from the_tale.game.mobs import logic as mobs_logic
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
-from the_tale.game import turn
-
-from the_tale.game.abilities.relations import HELP_CHOICES
-
-
-class BattlePvE1x1ActionTest(testcase.TestCase):
+class BattlePvE1x1ActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(BattlePvE1x1ActionTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
@@ -57,7 +30,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.action_idl = self.hero.actions.current_action
 
         with mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 0):
-            self.action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
+            self.action_battle = prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
 
     def tearDown(self):
         pass
@@ -144,11 +117,11 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
     def test_full_battle__with_companion(self):
         battle_ability = random.choice([ability
-                                        for ability in effects.ABILITIES.records
-                                        if isinstance(ability.effect, effects.BaseBattleAbility)])
+                                        for ability in companions_abilities_effects.ABILITIES.records
+                                        if isinstance(ability.effect, companions_abilities_effects.BaseBattleAbility)])
 
         companion_record = next(companions_storage.companions.enabled_companions())
-        companion_record.abilities = container.Container(start=(battle_ability,))
+        companion_record.abilities = companions_abilities_container.Container(start=(battle_ability,))
 
         companion = companions_logic.create_companion(companion_record)
         self.hero.set_companion(companion)
@@ -175,7 +148,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.hero.companion.health = 10
 
-        while self.hero.actions.current_action.TYPE == ActionBattlePvE1x1Prototype.TYPE:
+        while self.hero.actions.current_action.TYPE == prototypes.ActionBattlePvE1x1Prototype.TYPE:
             self.storage.process_turn(continue_steps_if_needed=False)
             turn.increment()
 
@@ -227,15 +200,15 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertTrue(self.action_battle.hero.is_alive)
 
     def test_help_choices(self):
-        self.assertTrue(HELP_CHOICES.LIGHTING in self.action_battle.HELP_CHOICES)
+        self.assertTrue(abilities_relations.HELP_CHOICES.LIGHTING in self.action_battle.HELP_CHOICES)
 
         self.action_battle.mob.health = 0
-        self.assertFalse(HELP_CHOICES.LIGHTING in self.action_battle.HELP_CHOICES)
+        self.assertFalse(abilities_relations.HELP_CHOICES.LIGHTING in self.action_battle.HELP_CHOICES)
 
         self.action_battle.mob.health = 1
         self.action_battle.hero.kill()
 
-        self.assertEqual(self.action_battle.HELP_CHOICES, set((HELP_CHOICES.RESURRECT,)))
+        self.assertEqual(self.action_battle.HELP_CHOICES, set((abilities_relations.HELP_CHOICES.RESURRECT,)))
 
     @mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 1.01)
     @mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.LEFT_3)
@@ -244,7 +217,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero.actions.pop_action()
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
-            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
+            action_battle = prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
@@ -272,7 +245,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero.actions.pop_action()
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
-            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
+            action_battle = prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
@@ -295,7 +268,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero.actions.pop_action()
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 0):
-            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=not_demon)
+            action_battle = prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=not_demon)
 
         self.assertEqual(action_battle.percents, 0.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.BATTLE_RUNNING)
@@ -311,7 +284,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero.actions.pop_action()
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 0):
-            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
+            action_battle = prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
@@ -328,7 +301,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         mob = next((m for m in mobs_storage.mobs.all() if m.type.is_CIVILIZED))
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 0):
-            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob.create_mob(self.hero, is_boss=False))
+            action_battle = prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob.create_mob(self.hero, is_boss=False))
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
@@ -348,7 +321,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
             with mock.patch('the_tale.game.heroes.objects.Hero.add_experience') as add_experience:
                 with mock.patch('the_tale.game.actions.prototypes.ActionBattlePvE1x1Prototype.process_artifact_breaking') as process_artifact_breaking:
-                    action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
+                    action_battle = prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
                     self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(add_experience.call_args_list, [mock.call(c.EXP_FOR_KILL)])
@@ -369,7 +342,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.artifacts.objects.Artifact.can_be_broken', lambda self: True)
     def test_process_artifact_breaking__broken(self):
         for artifact in list(self.hero.equipment.values()):
-            artifact.power = Power(100, 100)
+            artifact.power = power.Power(100, 100)
 
         old_power = self.hero.power.total()
         self.action_battle.process_artifact_breaking()
@@ -379,7 +352,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.artifacts.objects.Artifact.can_be_broken', lambda self: False)
     def test_process_artifact_breaking__not_broken(self):
         for artifact in list(self.hero.equipment.values()):
-            artifact.power = Power(100, 100)
+            artifact.power = power.Power(100, 100)
 
         old_power = self.hero.power.total()
         self.action_battle.process_artifact_breaking()
@@ -389,7 +362,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.artifacts.objects.Artifact.can_be_broken', lambda self: False)
     def test_process_artifact_breaking__break_only_mostly_damaged(self):
         for artifact in list(self.hero.equipment.values()):
-            artifact.power = Power(100, 100)
+            artifact.power = power.Power(100, 100)
             artifact.integrity = 0
 
         artifact.integrity = artifact.max_integrity
@@ -397,7 +370,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         for i in range(100):
             self.action_battle.process_artifact_breaking()
 
-        self.assertEqual(artifact.power, Power(100, 100))
+        self.assertEqual(artifact.power, power.Power(100, 100))
 
 
     def test_process_artifact_breaking__integrity_damage(self):

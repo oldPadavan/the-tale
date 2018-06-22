@@ -1,37 +1,19 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.actions import prototypes
-from the_tale.game import turn
-
-from the_tale.game.map.relations import TERRAIN
-from the_tale.game.map.storage import map_info_storage
-
-from the_tale.game.places import logic as places_logic
+smart_imports.all()
 
 
-class MoveNearActionTest(testcase.TestCase):
+class MoveNearActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(MoveNearActionTest, self).setUp()
 
-        self.p1, self.p2, self.p3 = create_test_map()
+        self.p1, self.p2, self.p3 = game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
         self.action_idl = self.hero.actions.current_action
@@ -55,15 +37,15 @@ class MoveNearActionTest(testcase.TestCase):
         self.assertTrue(len(self.p1.nearest_cells) > 3) # two coordinates will be in coordinates set, other will not
 
         x_1, y_1 = self.p1.nearest_cells[0]
-        map_info_storage.item.terrain[y_1][x_1] = TERRAIN.WATER_DEEP
+        map_storage.map_info_storage.item.terrain[y_1][x_1] = map_relations.TERRAIN.WATER_DEEP
 
         x_2, y_2 = self.p1.nearest_cells[1]
-        map_info_storage.item.terrain[y_2][x_2] = TERRAIN.WATER_DEEP
+        map_storage.map_info_storage.item.terrain[y_2][x_2] = map_relations.TERRAIN.WATER_DEEP
 
         coordinates = set()
 
         for i in range(100):
-            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
+            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(map_relations.TERRAIN.WATER_DEEP,)))
 
         self.assertEqual(coordinates, set([(x_1, y_1), (x_2, y_2)]))
 
@@ -75,7 +57,7 @@ class MoveNearActionTest(testcase.TestCase):
         coordinates = set()
 
         for i in range(100):
-            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
+            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(map_relations.TERRAIN.WATER_DEEP,)))
 
         self.assertEqual(coordinates, set(self.p1.nearest_cells))
 
@@ -84,15 +66,15 @@ class MoveNearActionTest(testcase.TestCase):
         self.assertTrue(len(self.p1.nearest_cells) > 3) # two coordinates will be in coordinates set, other will not
 
         x_1, y_1 = self.p1.nearest_cells[0]
-        map_info_storage.item.terrain[y_1][x_1] = TERRAIN.WATER_DEEP
+        map_storage.map_info_storage.item.terrain[y_1][x_1] = map_relations.TERRAIN.WATER_DEEP
 
         x_2, y_2 = self.p1.nearest_cells[1]
-        map_info_storage.item.terrain[y_2][x_2] = TERRAIN.WATER_DEEP
+        map_storage.map_info_storage.item.terrain[y_2][x_2] = map_relations.TERRAIN.WATER_DEEP
 
         coordinates = set()
 
         for i in range(100):
-            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=True, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
+            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=True, place=self.p1, terrains=(map_relations.TERRAIN.WATER_DEEP,)))
 
         self.assertEqual(coordinates, set([(self.p1.x, self.p1.y)]))
 

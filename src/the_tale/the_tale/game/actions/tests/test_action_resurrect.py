@@ -1,31 +1,26 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.actions.prototypes import ActionResurrectPrototype
-from the_tale.game.balance import constants as c
-from the_tale.game import turn
+smart_imports.all()
 
 
-class ResurrectActionTest(testcase.TestCase):
+class ResurrectActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(ResurrectActionTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
 
         self.hero.kill()
 
-        self.action_resurrect = ActionResurrectPrototype.create(hero=self.hero)
+        self.action_resurrect = prototypes.ActionResurrectPrototype.create(hero=self.hero)
 
     def tearDown(self):
         pass

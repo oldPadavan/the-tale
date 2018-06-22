@@ -1,13 +1,10 @@
-# coding: utf-8
 
-from unittest import mock
+import smart_imports
 
-from the_tale.game.actions import contexts
-from the_tale.game.actions.prototypes import ActionBase
-from the_tale.game.actions import relations
+smart_imports.all()
 
 
-class TestAction(ActionBase):
+class TestAction(prototypes.ActionBase):
     TYPE = relations.ACTION_TYPE.TEST
     CONTEXT_MANAGER = contexts.BattleContext
     SINGLE = False

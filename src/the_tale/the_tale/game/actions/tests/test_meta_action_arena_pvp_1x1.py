@@ -1,35 +1,20 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-from the_tale.game import turn
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.pvp.models import Battle1x1, Battle1x1Result
-from the_tale.game.pvp.relations import BATTLE_1X1_STATE
-from the_tale.game.pvp.prototypes import Battle1x1Prototype
-from the_tale.game.pvp.tests.helpers import PvPTestsMixin
-from the_tale.game.pvp.abilities import ABILITIES, Flame
-
-from .. import meta_actions
-from .. import prototypes
+smart_imports.all()
 
 
-class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
+class ArenaPvP1x1Test(utils_testcase.TestCase, pvp_tests_helpers.PvPTestsMixin):
 
     def setUp(self):
         super(ArenaPvP1x1Test, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
         self.storage.load_account_data(self.account_2)
 
@@ -39,11 +24,11 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         # for test data reset
         self.hero_1.health = self.hero_1.max_health / 2
 
-        self.battle_1 = self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
+        self.battle_1 = self.pvp_create_battle(self.account_1, self.account_2, pvp_relations.BATTLE_1X1_STATE.PROCESSING)
         self.battle_1.calculate_rating = True
         self.battle_1.save()
 
-        self.battle_2 = self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
+        self.battle_2 = self.pvp_create_battle(self.account_2, self.account_1, pvp_relations.BATTLE_1X1_STATE.PROCESSING)
         self.battle_2.calculate_rating = True
         self.battle_2.save()
 
@@ -121,7 +106,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
     def test_hero_1_win(self):
         self._end_battle(hero_1_health=self.hero_1.max_health, hero_2_health=0)
 
-        self.assertEqual(Battle1x1Prototype._model_class.objects.all().count(), 0)
+        self.assertEqual(pvp_prototypes.Battle1x1Prototype._model_class.objects.all().count(), 0)
 
         self.check_hero_pvp_statistics(self.hero_1, 1, 1, 0, 0)
         self.check_hero_pvp_statistics(self.hero_2, 1, 0, 0, 1)
@@ -129,7 +114,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
     def test_hero_2_win(self):
         self._end_battle(hero_1_health=0, hero_2_health=self.hero_2.max_health)
 
-        self.assertEqual(Battle1x1Prototype._model_class.objects.all().count(), 0)
+        self.assertEqual(pvp_prototypes.Battle1x1Prototype._model_class.objects.all().count(), 0)
 
         self.check_hero_pvp_statistics(self.hero_1, 1, 0, 0, 1)
         self.check_hero_pvp_statistics(self.hero_2, 1, 1, 0, 0)
@@ -137,7 +122,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
     def test_draw(self):
         self._end_battle(hero_1_health=0, hero_2_health=0)
 
-        self.assertEqual(Battle1x1Prototype._model_class.objects.all().count(), 0)
+        self.assertEqual(pvp_prototypes.Battle1x1Prototype._model_class.objects.all().count(), 0)
 
         self.check_hero_pvp_statistics(self.hero_1, 1, 0, 1, 0)
         self.check_hero_pvp_statistics(self.hero_2, 1, 0, 1, 0)
@@ -191,7 +176,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         self.assertTrue(self.meta_action_battle.hero_2_pvp.advantage < 0)
 
     def test_full_battle(self):
-        self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.PROCESSING).count(), 2)
+        self.assertEqual(pvp_models.Battle1x1.objects.filter(state=pvp_relations.BATTLE_1X1_STATE.PROCESSING).count(), 2)
 
         while self.meta_action_battle.state != meta_actions.ArenaPvP1x1.STATE.PROCESSED:
             self.meta_action_battle.process()
@@ -202,10 +187,10 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(self.hero_1.health, self.hero_1.max_health / 2)
         self.assertEqual(self.hero_2.health, self.hero_2.max_health)
 
-        self.assertEqual(Battle1x1.objects.all().count(), 0)
-        self.assertEqual(Battle1x1Result.objects.all().count(), 1)
+        self.assertEqual(pvp_models.Battle1x1.objects.all().count(), 0)
+        self.assertEqual(pvp_models.Battle1x1Result.objects.all().count(), 1)
 
-        battle_result = Battle1x1Result.objects.all()[0]
+        battle_result = pvp_models.Battle1x1Result.objects.all()[0]
 
         self.assertNotEqual(battle_result.participant_1_id, battle_result.participant_2_id)
 
@@ -214,7 +199,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
 
         self.assertEqual(set(properties.keys()), set(('ability_chance', 'priorities')))
         self.assertTrue(0 < properties['ability_chance'] <= 1)
-        self.assertEqual(set(properties['priorities']), set(ABILITIES.keys()))
+        self.assertEqual(set(properties['priorities']), set(pvp_abilities.ABILITIES.keys()))
 
         for ability_priority in properties['priorities'].values():
             self.assertTrue(ability_priority > 0)
@@ -258,7 +243,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         account_1 = self.accounts_factory.create_account()
         account_2 = self.accounts_factory.create_account(is_bot=True)
 
-        storage = LogicStorage()
+        storage = game_logic_storage.LogicStorage()
         storage.load_account_data(account_1)
         storage.load_account_data(account_2)
 
@@ -279,7 +264,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         account_1 = self.accounts_factory.create_account(is_bot=True)
         account_2 = self.accounts_factory.create_account()
 
-        storage = LogicStorage()
+        storage = game_logic_storage.LogicStorage()
         storage.load_account_data(account_1)
         storage.load_account_data(account_2)
 
@@ -300,7 +285,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         account_1 = self.accounts_factory.create_account()
         account_2 = self.accounts_factory.create_account(is_bot=True)
 
-        storage = LogicStorage()
+        storage = game_logic_storage.LogicStorage()
         storage.load_account_data(account_1)
         storage.load_account_data(account_2)
 
@@ -310,8 +295,8 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         hero_1.level = 50
         self.assertEqual(hero_2.level, 1)
 
-        self.pvp_create_battle(account_1, account_2, BATTLE_1X1_STATE.PROCESSING)
-        self.pvp_create_battle(account_2, account_1, BATTLE_1X1_STATE.PROCESSING)
+        self.pvp_create_battle(account_1, account_2, pvp_relations.BATTLE_1X1_STATE.PROCESSING)
+        self.pvp_create_battle(account_2, account_1, pvp_relations.BATTLE_1X1_STATE.PROCESSING)
 
         meta_action = meta_actions.ArenaPvP1x1.create(storage, hero_1, hero_2)
         meta_action.process_battle_ending()
@@ -327,14 +312,14 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         account_1 = self.accounts_factory.create_account(is_bot=True)
         account_2 = self.accounts_factory.create_account()
 
-        storage = LogicStorage()
+        storage = game_logic_storage.LogicStorage()
         storage.load_account_data(account_1)
         storage.load_account_data(account_2)
 
         hero_1 = storage.accounts_to_heroes[account_1.id]
         hero_2 = storage.accounts_to_heroes[account_2.id]
 
-        self.meta_action_battle.bot_pvp_properties = {'priorities': {Flame.TYPE: 1}, 'ability_chance': 1}
+        self.meta_action_battle.bot_pvp_properties = {'priorities': {pvp_abilities.Flame.TYPE: 1}, 'ability_chance': 1}
 
         self.assertEqual(self.meta_action_battle.hero_2_pvp.energy_speed, 1)
 

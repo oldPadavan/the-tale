@@ -1,35 +1,20 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.actions import prototypes
-from the_tale.game.abilities.deck.help import Help
-from the_tale.game.abilities.relations import HELP_CHOICES
-from the_tale.game import turn
-
-from the_tale.game.abilities.tests.helpers import UseAbilityTaskMixin
+smart_imports.all()
 
 
-class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
-    PROCESSOR = Help
+class HealCompanionActionTest(abilities_tests_helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
+    PROCESSOR = abilities_deck.help.Help
 
     def setUp(self):
         super(HealCompanionActionTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
 
         self.hero = self.storage.accounts_to_heroes[self.account.id]
@@ -89,7 +74,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
             with self.check_increased(lambda: self.hero.companion.health):
                 ability = self.PROCESSOR()
 
-                with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION):
+                with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: abilities_relations.HELP_CHOICES.HEAL_COMPANION):
                     self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
 
 
@@ -101,7 +86,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
             with self.check_increased(lambda: self.hero.companion.health):
                 ability = self.PROCESSOR()
 
-                with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION):
+                with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: abilities_relations.HELP_CHOICES.HEAL_COMPANION):
                     self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
 
         self.assertTrue(self.action_heal_companion.percents, 1)
@@ -117,7 +102,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
             with self.check_increased(lambda: self.hero.companion.health):
                 ability = self.PROCESSOR()
 
-                with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION):
+                with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: abilities_relations.HELP_CHOICES.HEAL_COMPANION):
                     self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
 
         self.assertTrue(self.action_heal_companion.percents, 1)
@@ -136,7 +121,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
                     ability = self.PROCESSOR()
 
-                    with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION):
+                    with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: abilities_relations.HELP_CHOICES.HEAL_COMPANION):
                         self.assertTrue(ability.use(**self.use_attributes(hero=self.hero, storage=self.storage)))
 
 

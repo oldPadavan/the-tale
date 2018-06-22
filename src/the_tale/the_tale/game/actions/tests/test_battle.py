@@ -1,43 +1,26 @@
 
-import random
+import smart_imports
 
-from unittest import mock
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.balance import power as p
-from the_tale.game.balance import constants as c
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-
-from the_tale.game.actions import battle
-from the_tale.game.actions.contexts import BattleContext
-
-from the_tale.game.heroes.habilities.battle import RUN_UP_PUSH, HIT, VAMPIRE_STRIKE
-from the_tale.game.mobs import storage as mobs_storage
-from the_tale.game.logic_storage import LogicStorage
+smart_imports.all()
 
 
-class TestsBase(testcase.TestCase):
+class TestsBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(TestsBase, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
     def get_actors(self):
         mob = mobs_storage.mobs.get_random_mob(self.hero)
-        actor_1 = battle.Actor(self.hero, BattleContext())
-        actor_2 = battle.Actor(mob, BattleContext())
+        actor_1 = battle.Actor(self.hero, contexts.BattleContext())
+        actor_2 = battle.Actor(mob, contexts.BattleContext())
 
         return actor_1, actor_2
 
@@ -50,12 +33,12 @@ class TestsBase(testcase.TestCase):
 
 class BattleTests(TestsBase):
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.additional_abilities', [VAMPIRE_STRIKE(level=1)])
+    @mock.patch('the_tale.game.heroes.objects.Hero.additional_abilities', [battle_abilities.VAMPIRE_STRIKE(level=1)])
     def test_hero_actor(self):
         self.hero.health = 10
-        self.hero.abilities.add(RUN_UP_PUSH.get_id())
+        self.hero.abilities.add(battle_abilities.RUN_UP_PUSH.get_id())
 
-        actor = battle.Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, contexts.BattleContext())
 
         self.assertEqual(self.hero.initiative, actor.initiative)
         self.assertEqual(self.hero.name, actor.name)
@@ -79,11 +62,11 @@ class BattleTests(TestsBase):
         for i in range(100):
             ability = actor.choose_ability()
 
-            if ability.get_id() == HIT.get_id():
+            if ability.get_id() == battle_abilities.HIT.get_id():
                hit_selected = True
-            elif ability.get_id() == RUN_UP_PUSH.get_id():
+            elif ability.get_id() == battle_abilities.RUN_UP_PUSH.get_id():
                 run_up_push_selected = True
-            elif ability.get_id() == VAMPIRE_STRIKE.get_id():
+            elif ability.get_id() == battle_abilities.VAMPIRE_STRIKE.get_id():
                 vampire_strike_selected = True
 
         self.assertTrue(hit_selected)
@@ -100,7 +83,7 @@ class BattleTests(TestsBase):
 
         self.hero.health = 1 # allow regeneration
 
-        actor = battle.Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, contexts.BattleContext())
 
         chosen_abilities = set()
 
@@ -135,7 +118,7 @@ class BattleTests(TestsBase):
         self.hero.set_companion(companions_logic.create_companion(companion_record))
         self.hero.health = 1 # allow regeneration
 
-        actor = battle.Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, contexts.BattleContext())
 
         chosen_abilities = set()
 
@@ -153,17 +136,17 @@ class BattleTests(TestsBase):
         self.assertEqual(active_abilities - set([companion_ability.effect.ABILITY.get_id()]), chosen_abilities)
 
     def test_initiative_change(self):
-        actor = battle.Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, contexts.BattleContext())
         actor.context.use_initiative([2])
         self.assertEqual(actor.initiative, self.hero.initiative*2)
 
-    @mock.patch('the_tale.game.mobs.objects.Mob.additional_abilities', [VAMPIRE_STRIKE(level=1)])
+    @mock.patch('the_tale.game.mobs.objects.Mob.additional_abilities', [battle_abilities.VAMPIRE_STRIKE(level=1)])
     def test_mob_actor(self):
         mob = mobs_storage.mobs.get_random_mob(self.hero)
         mob.health = 10
-        mob.abilities.add(RUN_UP_PUSH.get_id())
+        mob.abilities.add(battle_abilities.RUN_UP_PUSH.get_id())
 
-        actor = battle.Actor(mob, BattleContext())
+        actor = battle.Actor(mob, contexts.BattleContext())
 
         self.assertEqual(mob.initiative, actor.initiative)
         self.assertEqual(mob.name, actor.name)
@@ -187,11 +170,11 @@ class BattleTests(TestsBase):
         for i in range(100):
             ability = actor.choose_ability()
 
-            if ability.get_id() == HIT.get_id():
+            if ability.get_id() == battle_abilities.HIT.get_id():
                hit_selected = True
-            elif ability.get_id() == RUN_UP_PUSH.get_id():
+            elif ability.get_id() == battle_abilities.RUN_UP_PUSH.get_id():
                 run_up_push_selected = True
-            elif ability.get_id() == VAMPIRE_STRIKE.get_id():
+            elif ability.get_id() == battle_abilities.VAMPIRE_STRIKE.get_id():
                 vampire_strike_selected = True
 
         self.assertTrue(hit_selected)
@@ -201,10 +184,10 @@ class BattleTests(TestsBase):
         self.storage._test_save()
 
     def test_process_effects(self):
-        actor = battle.Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, contexts.BattleContext())
 
-        actor.context.use_damage_queue_fire([p.Damage(50, 50), p.Damage(50, 50)])
-        actor.context.use_damage_queue_poison([p.Damage(50, 50), p.Damage(50, 50)])
+        actor.context.use_damage_queue_fire([power.Damage(50, 50), power.Damage(50, 50)])
+        actor.context.use_damage_queue_poison([power.Damage(50, 50), power.Damage(50, 50)])
         actor.context.on_own_turn()
 
         actor.context.use_incoming_damage_modifier(physic=1.0, magic=0.8)

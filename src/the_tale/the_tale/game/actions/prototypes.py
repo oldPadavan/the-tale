@@ -1,49 +1,7 @@
 
-import random
-import copy
-import math
+import smart_imports
 
-from django.conf import settings as project_settings
-
-from dext.common.utils.urls import url
-from dext.common.utils import discovering
-
-from the_tale.common.utils import logic as utils_logic
-
-from the_tale.game import turn
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance import power as p
-
-from the_tale.game.quests import logic as quests_logic
-
-from the_tale.game.mobs import objects as mobs_objects
-from the_tale.game.mobs import storage as mobs_storage
-
-from the_tale.game.artifacts import storage as artifacts_storage
-
-from the_tale.game.roads.storage import waymarks_storage
-from the_tale.game.places import storage as places_storage
-from the_tale.game.map.storage import map_info_storage
-
-from the_tale.game.abilities.relations import HELP_CHOICES
-
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game import tt_api_energy
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.persons import logic as persons_logic
-
-from the_tale.game.actions import battle
-from the_tale.game.actions import contexts
-from the_tale.game.actions import exceptions
-from the_tale.game.actions import relations
-from the_tale.game.actions import meta_actions
+smart_imports.all()
 
 
 E = 0.0001
@@ -251,17 +209,17 @@ class ActionBase(object):
     def help_choices(self):
         choices = copy.copy(self.HELP_CHOICES)
 
-        if HELP_CHOICES.HEAL in choices:
+        if abilities_relations.HELP_CHOICES.HEAL in choices:
             if len(choices) > 1 and not self.hero.can_be_healed(strict=False):
-                choices.remove(HELP_CHOICES.HEAL)
+                choices.remove(abilities_relations.HELP_CHOICES.HEAL)
             elif not self.hero.can_be_healed(strict=True):
-                choices.remove(HELP_CHOICES.HEAL)
+                choices.remove(abilities_relations.HELP_CHOICES.HEAL)
 
-        if HELP_CHOICES.HEAL_COMPANION in choices:
+        if abilities_relations.HELP_CHOICES.HEAL_COMPANION in choices:
             if (self.hero.companion is None or
                 self.hero.companion_heal_disabled() or
                 self.hero.companion.health == self.hero.companion.max_health):
-                choices.remove(HELP_CHOICES.HEAL_COMPANION)
+                choices.remove(abilities_relations.HELP_CHOICES.HEAL_COMPANION)
 
         return choices
 
@@ -431,10 +389,10 @@ class ActionIdlenessPrototype(ActionBase):
 
     @property
     def HELP_CHOICES(self): # pylint: disable=C0103
-        choices = set((HELP_CHOICES.START_QUEST, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+        choices = set((abilities_relations.HELP_CHOICES.START_QUEST, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
         if self.percents > 1.0 - E:
-            choices.remove(HELP_CHOICES.START_QUEST)
+            choices.remove(abilities_relations.HELP_CHOICES.START_QUEST)
 
         return choices
 
@@ -564,7 +522,7 @@ class ActionQuestPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.QUEST
     TEXTGEN_TYPE = 'action_quest'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
     APPROVED_FOR_STEPS_CHAIN = False # all quest actions MUST be done on separated turns
 
     class STATE(ActionBase.STATE):
@@ -603,7 +561,7 @@ class ActionQuestPrototype(ActionBase):
             else:
                 # a lot of test depans on complete processing of this action
                 # so it is easie to emulate quest generation here, then place everywere mock objects
-                if project_settings.TESTS_RUNNING:
+                if django_settings.TESTS_RUNNING:
                     from the_tale.game.quests.tests import helpers as quests_helpers
                     quests_helpers.setup_quest(self.hero)
                 else:
@@ -638,10 +596,10 @@ class ActionMoveToPrototype(ActionBase):
 
     @property
     def HELP_CHOICES(self):
-        choices = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+        choices = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
         if self.state == self.STATE.MOVING:
-            choices.add(HELP_CHOICES.TELEPORT)
+            choices.add(abilities_relations.HELP_CHOICES.TELEPORT)
 
         return choices
 
@@ -756,7 +714,7 @@ class ActionMoveToPrototype(ActionBase):
 
     def process_choose_road__in_place(self):
         if self.hero.position.place_id != self.destination_id:
-            waymark = waymarks_storage.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
+            waymark = roads_storage.waymarks_storage.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
             length = waymark.length
             self.hero.position.set_road(waymark.road, invert=(self.hero.position.place_id != waymark.road.point_1_id))
             self.state = self.STATE.MOVING
@@ -767,11 +725,11 @@ class ActionMoveToPrototype(ActionBase):
         return length
 
     def process_choose_road__in_road(self):
-        waymark = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
+        waymark = roads_storage.waymarks_storage.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
         road_left = waymark.road
         length_left = waymark.length
 
-        waymark = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
+        waymark = roads_storage.waymarks_storage.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
         road_right = waymark.road
         length_right = waymark.length
 
@@ -944,10 +902,10 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     @property
     def HELP_CHOICES(self): # pylint: disable=C0103
         if not self.hero.is_alive:
-            return set((HELP_CHOICES.RESURRECT,))
+            return set((abilities_relations.HELP_CHOICES.RESURRECT,))
         if self.mob.health <= 0:
-            return set((HELP_CHOICES.MONEY, HELP_CHOICES.HEAL, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
-        return set((HELP_CHOICES.MONEY, HELP_CHOICES.LIGHTING, HELP_CHOICES.HEAL, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+            return set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+        return set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.LIGHTING, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         BATTLE_RUNNING = 'battle_running'
@@ -957,7 +915,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     ###########################################
 
     def get_info_link(self):
-        return url('guide:mobs:info', self.mob.record.id)
+        return dext_urls.url('guide:mobs:info', self.mob.record.id)
 
     @classmethod
     def _create(cls, hero, bundle_id, mob):
@@ -1083,7 +1041,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
         self.hero.damage_integrity()
 
-        expected_power = p.Power.normal_total_power_to_level(self.hero.level)
+        expected_power = power.Power.normal_total_power_to_level(self.hero.level)
 
         if random.uniform(0.0, 1.0) > c.ARTIFACTS_BREAKS_PER_BATTLE * (float(self.hero.power.total()) / expected_power)**2:
             return
@@ -1146,7 +1104,7 @@ class ActionResurrectPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.RESURRECT
     TEXTGEN_TYPE = 'action_resurrect'
-    HELP_CHOICES = set((HELP_CHOICES.RESURRECT,))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.RESURRECT,))
 
     class STATE(ActionBase.STATE):
         RESURRECT = 'resurrect'
@@ -1190,7 +1148,7 @@ class ActionFirstStepsPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.FIRST_STEPS
     TEXTGEN_TYPE = 'action_first_steps'
-    HELP_CHOICES = set((HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE))
 
     class STATE(ActionBase.STATE):
         THINK_ABOUT_INITIATION = 'THINK_ABOUT_INITIATION'
@@ -1233,7 +1191,7 @@ class ActionInPlacePrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.IN_PLACE
     TEXTGEN_TYPE = 'action_inplace'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         SPEND_MONEY = 'spend_money'
@@ -1487,7 +1445,7 @@ class ActionInPlacePrototype(ActionBase):
             self.spend_money__heal_companion()
 
         else:
-            raise exceptions.ActionException('wrong hero money spend type: %d' % self.hero.next_spending)
+            raise exceptions.WrongHeroMoneySpendType(spending=self.hero.next_spending)
 
 
     def process_companion_stealing(self):
@@ -1562,7 +1520,7 @@ class ActionRestPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.REST
     TEXTGEN_TYPE = 'action_rest'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         RESTING = 'resting'
@@ -1615,7 +1573,7 @@ class ActionEquippingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.EQUIPPING
     TEXTGEN_TYPE = 'action_equipping'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         EQUIPPING = 'equipping'
@@ -1654,7 +1612,7 @@ class ActionTradingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.TRADING
     TEXTGEN_TYPE = 'action_trading'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         TRADING = 'trading'
@@ -1697,7 +1655,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.MOVE_NEAR_PLACE
     TEXTGEN_TYPE = 'action_movenearplace'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         MOVING = 'MOVING'
@@ -1720,7 +1678,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
             choices = ()
 
             if terrains is not None:
-                map_info = map_info_storage.item
+                map_info = map_storage.map_info_storage.item
                 choices = [ (x, y) for x, y in place.nearest_cells if map_info.terrain[y][x] in terrains]
 
             if not choices:
@@ -1876,7 +1834,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.REGENERATE_ENERGY
     TEXTGEN_TYPE = 'action_regenerate_energy'
-    HELP_CHOICES = set((HELP_CHOICES.MONEY, HELP_CHOICES.HEAL, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         REGENERATE = 'REGENERATE'
@@ -1940,7 +1898,7 @@ class ActionDoNothingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.DO_NOTHING
     TEXTGEN_TYPE = 'no texgen type'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         DO_NOTHING = 'DO_NOTHING'
@@ -1982,7 +1940,7 @@ class ActionMetaProxyPrototype(ActionBase):
     SINGLE = False
     TYPE = relations.ACTION_TYPE.META_PROXY
     TEXTGEN_TYPE = 'no texgen type'
-    HELP_CHOICES = set((HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
     APPROVED_FOR_STEPS_CHAIN = False
 
     @property
@@ -2031,7 +1989,7 @@ class ActionHealCompanionPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.HEAL_COMPANION
     TEXTGEN_TYPE = 'action_heal_companion'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL_COMPANION, ))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL_COMPANION, ))
 
     HABIT_MODE = relations.ACTION_HABIT_MODE.COMPANION
 
@@ -2128,4 +2086,4 @@ class ActionHealCompanionPrototype(ActionBase):
 
 
 ACTION_TYPES = { action_class.TYPE:action_class
-                 for action_class in discovering.discover_classes(list(globals().values()), ActionBase) }
+                 for action_class in dext_discovering.discover_classes(list(globals().values()), ActionBase) }

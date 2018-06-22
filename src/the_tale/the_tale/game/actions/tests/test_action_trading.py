@@ -1,31 +1,24 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game import turn
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.actions.prototypes import ActionTradingPrototype
-from the_tale.game.artifacts import storage as artifacts_storage
-from the_tale.game.artifacts import relations as artifacts_relations
+smart_imports.all()
 
 
-class TradingActionTest(testcase.TestCase):
+class TradingActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(TradingActionTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
         self.action_idl = self.hero.actions.current_action
 
-        self.action_trade = ActionTradingPrototype.create(hero=self.hero)
+        self.action_trade = prototypes.ActionTradingPrototype.create(hero=self.hero)
 
     def tearDown(self):
         pass

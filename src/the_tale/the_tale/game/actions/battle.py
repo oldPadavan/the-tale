@@ -1,15 +1,7 @@
 
-import random
+import smart_imports
 
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-
-
-from the_tale.common.utils.logic import random_value_by_priority
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.actions import contexts
+smart_imports.all()
 
 
 class Actor(object):
@@ -85,7 +77,7 @@ class Actor(object):
         choice_abilities += [ (ability, ability.priority)
                               for ability in self.actor.additional_abilities
                               if ability.activation_type.is_ACTIVE and ability.can_be_used(self)]
-        return random_value_by_priority(choice_abilities)
+        return utils_logic.random_value_by_priority(choice_abilities)
 
     def update_context(self, enemy):
         self.actor.update_context(self, enemy)
@@ -272,7 +264,7 @@ def try_companion_strike(attacker, defender, messenger):
     if not battle_abilities:
         return False
 
-    ability = random_value_by_priority([(ability, ability.priority) for ability in battle_abilities])
+    ability = utils_logic.random_value_by_priority([(ability, ability.priority) for ability in battle_abilities])
 
     companion_actor = CompanionActor(attacker, contexts.BattleContext())
 

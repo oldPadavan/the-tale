@@ -1,32 +1,7 @@
 
-import random
+import smart_imports
 
-from dext.common.utils import discovering
-
-from the_tale.common.utils.logic import random_value_by_priority
-
-from the_tale.accounts.prototypes import AccountPrototype
-
-from the_tale.game import turn
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-
-from the_tale.game.pvp.abilities import ABILITIES as PVP_ABILITIES
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.pvp.prototypes import Battle1x1Prototype, Battle1x1ResultPrototype
-from the_tale.game.pvp.relations import BATTLE_1X1_RESULT
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from . import pvp
-from . import battle
-from . import contexts
-from . import relations
+smart_imports.all()
 
 
 class MetaAction(object):
@@ -39,7 +14,10 @@ class MetaAction(object):
         UNINITIALIZED = relations.UNINITIALIZED_STATE
         PROCESSED = 'processed'
 
-    def __init__(self, last_processed_turn=-1, percents=0, state=STATE.UNINITIALIZED):
+    def __init__(self, last_processed_turn=-1, percents=0, state=None):
+        if state is None:
+            state = self.STATE.UNINITIALIZED
+
         self.storage = None
         self.last_processed_turn = last_processed_turn
 
@@ -181,7 +159,7 @@ class ArenaPvP1x1(MetaAction):
 
     @classmethod
     def get_bot_pvp_properties(cls):
-        bot_priorities = {ability.TYPE: random.uniform(0.1, 1.0) for ability in PVP_ABILITIES.values()}
+        bot_priorities = {ability.TYPE: random.uniform(0.1, 1.0) for ability in pvp_abilities.ABILITIES.values()}
         bot_priorities_sum = sum(bot_priorities.values())
         bot_priorities = {ability_type: ability_priority/bot_priorities_sum
                           for ability_type, ability_priority in bot_priorities.items()}
@@ -237,27 +215,27 @@ class ArenaPvP1x1(MetaAction):
         pvp.set_effectiveness(pvp.effectiveness - pvp.effectiveness * c.PVP_EFFECTIVENESS_EXTINCTION_FRACTION)
 
     def process_battle_ending(self):
-        battle_1 = Battle1x1Prototype.get_by_account_id(self.hero_1.account_id)
-        battle_2 = Battle1x1Prototype.get_by_account_id(self.hero_2.account_id)
+        battle_1 = pvp_prototypes.Battle1x1Prototype.get_by_account_id(self.hero_1.account_id)
+        battle_2 = pvp_prototypes.Battle1x1Prototype.get_by_account_id(self.hero_2.account_id)
 
-        participant_1 = AccountPrototype.get_by_id(self.hero_1.account_id)
-        participant_2 = AccountPrototype.get_by_id(self.hero_2.account_id)
+        participant_1 = accounts_prototypes.AccountPrototype.get_by_id(self.hero_1.account_id)
+        participant_2 = accounts_prototypes.AccountPrototype.get_by_id(self.hero_2.account_id)
 
         if self.hero_1.health <= 0:
             if self.hero_2.health <= 0:
-                Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.DRAW)
+                pvp_prototypes.Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =pvp_relations.BATTLE_1X1_RESULT.DRAW)
 
                 if battle_1.calculate_rating and battle_2.calculate_rating:
                     self.hero_1.statistics.change_pvp_battles_1x1_draws(1)
                     self.hero_2.statistics.change_pvp_battles_1x1_draws(1)
             else:
-                Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.DEFEAT)
+                pvp_prototypes.Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =pvp_relations.BATTLE_1X1_RESULT.DEFEAT)
 
                 if battle_1.calculate_rating and battle_2.calculate_rating:
                     self.hero_2.statistics.change_pvp_battles_1x1_victories(1)
                     self.hero_1.statistics.change_pvp_battles_1x1_defeats(1)
         else:
-            Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =BATTLE_1X1_RESULT.VICTORY)
+            pvp_prototypes.Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result =pvp_relations.BATTLE_1X1_RESULT.VICTORY)
 
             if battle_1.calculate_rating and battle_2.calculate_rating:
                 self.hero_1.statistics.change_pvp_battles_1x1_victories(1)
@@ -279,12 +257,12 @@ class ArenaPvP1x1(MetaAction):
         if random.uniform(0.0, 1.0) > properties['ability_chance']:
             return
 
-        used_ability_type = random_value_by_priority(properties['priorities'].items())
+        used_ability_type = utils_logic.random_value_by_priority(properties['priorities'].items())
 
         if used_ability_type == Flame.TYPE and enemy_pvp.energy_speed == 1:
             return
 
-        PVP_ABILITIES[used_ability_type](hero=bot, enemy=enemy).use()
+        pvp_abilities.ABILITIES[used_ability_type](hero=bot, enemy=enemy).use()
 
 
     def process_battle_running(self):
@@ -349,4 +327,4 @@ class ArenaPvP1x1(MetaAction):
 
 
 ACTION_TYPES = { action_class.TYPE:action_class
-                 for action_class in discovering.discover_classes(globals().values(), MetaAction) }
+                 for action_class in dext_discovering.discover_classes(globals().values(), MetaAction) }

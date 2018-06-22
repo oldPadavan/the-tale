@@ -1,6 +1,7 @@
-# coding: utf-8
 
-from the_tale.game.actions import relations
+import smart_imports
+
+smart_imports.all()
 
 
 class ActionsContainer(object):
@@ -61,7 +62,6 @@ class ActionsContainer(object):
 
     def reset_to_idl(self):
         self.actions_list = self.actions_list[:1]
-
 
     def request_replane(self):
         for action in self.actions_list:

@@ -1,51 +1,19 @@
 
-import time
+import smart_imports
 
-from unittest import mock
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game import tt_api_energy
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-from the_tale.game.companions import relations as companions_relations
-
-from the_tale.game.actions import prototypes
-from the_tale.game.actions.tests.helpers import ActionEventsTestsMixin
-
-from the_tale.game.artifacts import logic as artifacts_logic
-from the_tale.game.artifacts import storage as artifacts_storage
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game import turn
-
-from the_tale.game.places import modifiers as places_modifiers
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance.power import Power
+smart_imports.all()
 
 
-class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
+class InPlaceActionTest(utils_testcase.TestCase, helpers.ActionEventsTestsMixin):
 
     def setUp(self):
         super(InPlaceActionTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
@@ -354,7 +322,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     def test_equip_action_create(self):
         artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
-        artifact.power = Power(666, 666)
+        artifact.power = power.Power(666, 666)
         self.hero.bag.put_artifact(artifact)
 
         self.storage.process_turn()
@@ -374,15 +342,15 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.storage._test_save()
 
 
-class InPlaceActionSpendMoneyTest(testcase.TestCase):
+class InPlaceActionSpendMoneyTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(InPlaceActionSpendMoneyTest, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
         self.action_idl = self.hero.actions.current_action
@@ -769,15 +737,15 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
                     self.storage.process_turn()
 
 
-class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
+class InPlaceActionCompanionBuyMealTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(InPlaceActionCompanionBuyMealTests, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -845,15 +813,15 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
         self.check_not_used()
 
 
-class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
+class InPlaceActionCompanionDrinkArtifactTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(InPlaceActionCompanionDrinkArtifactTests, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -901,15 +869,15 @@ class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
         self.check_not_used()
 
 
-class InPlaceActionCompanionLeaveTests(testcase.TestCase):
+class InPlaceActionCompanionLeaveTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(InPlaceActionCompanionLeaveTests, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -946,15 +914,15 @@ class InPlaceActionCompanionLeaveTests(testcase.TestCase):
         self.assertNotEqual(self.hero.companion, None)
 
 
-class InPlaceActionCompanionStealingTest(testcase.TestCase):
+class InPlaceActionCompanionStealingTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(InPlaceActionCompanionStealingTest, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.hero.position.previous_place_id = None # test setting prevouse place in action constructor

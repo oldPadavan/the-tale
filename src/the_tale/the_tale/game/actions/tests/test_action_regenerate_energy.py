@@ -1,32 +1,23 @@
 
-import time
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.actions.prototypes import ActionRegenerateEnergyPrototype
-
-from the_tale.game import turn
-from the_tale.game import tt_api_energy
+smart_imports.all()
 
 
-class RegenerateEnergyActionTest(testcase.TestCase):
+class RegenerateEnergyActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(RegenerateEnergyActionTest, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
         self.action_idl = self.hero.actions.current_action
 
-        self.action_regenerate = ActionRegenerateEnergyPrototype.create(hero=self.hero)
+        self.action_regenerate = prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero)
 
     def tearDown(self):
         pass

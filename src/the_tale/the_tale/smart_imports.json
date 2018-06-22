@@ -21,6 +21,7 @@
                       {"prefix": "persons_", "module": "the_tale.game.persons"},
                       {"prefix": "companions_abilities_", "module": "the_tale.game.companions.abilities"},
                       {"prefix": "companions_", "module": "the_tale.game.companions"},
+                      {"prefix": "actions_contexts_", "module": "the_tale.game.actions.contexts"},
                       {"prefix": "actions_", "module": "the_tale.game.actions"},
                       {"prefix": "quests_", "module": "the_tale.game.quests"},
                       {"prefix": "cards_", "module": "the_tale.game.cards"},
@@ -36,7 +37,10 @@
                       {"prefix": "utg_", "module": "utg"},
                       {"prefix": "rels_", "module": "rels"},
                       {"prefix": "questgen_", "module": "questgen"},
-                      {"prefix": "pvp_", "module": "the_tale.game.pvp"}
+                      {"prefix": "pvp_", "module": "the_tale.game.pvp"},
+                      {"prefix": "politic_power_", "module": "the_tale.game.politic_power"},
+                      {"prefix": "abilities_", "module": "the_tale.game.abilities"},
+                      {"prefix": "abilities_deck", "module": "the_tale.game.abilities.deck"}
                   ]
               },
               "rule_custom": {
@@ -52,6 +56,7 @@
                       "dext_cache": {"module": "dext.common.utils.cache"},
                       "dext_views": {"module": "dext.common.utils.views"},
                       "dext_old_views": {"module": "dext.views"},
+                      "dext_discovering": {"module": "dext.common.utils.discovering"},
 
                       "django_models": {"module": "django.db.models"},
                       "django_admin": {"module": "django.contrib.admin"},
@@ -71,6 +76,7 @@
                       "c": {"module": "the_tale.game.balance.constants"},
                       "power": {"module": "the_tale.game.balance.power"},
                       "tt_api_energy": {"module": "the_tale.game.tt_api_energy"},
+                      "tt_api_impacts": {"module": "the_tale.game.tt_api_impacts"},
 
                       "habilities_relations": {"module": "the_tale.game.heroes.habilities.relations"},
 
@@ -124,8 +130,10 @@
                       "linguistics_helpers": {"module": "the_tale.linguistics.tests.helpers"},
                       "blogs_helpers": {"module": "the_tale.blogs.tests.helpers"},
 
-                      "game_tests_helpers": {"module": "the_tale.game.tests.helpers"}
-
+                      "game_tests_helpers": {"module": "the_tale.game.tests.helpers"},
+                      "abilities_tests_helpers": {"module": "the_tale.game.abilities.tests.helpers"},
+                      "pvp_tests_helpers": {"module": "the_tale.game.pvp.tests.helpers"},
+                      "quests_tests_helpers": {"module": "the_tale.game.quests.tests.helpers"}
                   }
               },
               "rule_stdlib": {}}
