@@ -40,13 +40,15 @@
                       {"prefix": "pvp_", "module": "the_tale.game.pvp"},
                       {"prefix": "politic_power_", "module": "the_tale.game.politic_power"},
                       {"prefix": "abilities_", "module": "the_tale.game.abilities"},
-                      {"prefix": "abilities_deck", "module": "the_tale.game.abilities.deck"}
+                      {"prefix": "abilities_deck_", "module": "the_tale.game.abilities.deck"},
+                      {"prefix": "lexicon_", "module": "the_tale.linguistics.lexicon"}
                   ]
               },
               "rule_custom": {
                   "variables": {
                       "rels": {"module": "rels"},
                       "tt_calendar": {"module": "tt_calendar"},
+                      "tt_artifacts_relations": {"module": "tt_logic.artifacts.relations"},
                       "jinja2": {"module": "jinja2"},
 
                       "dext_urls": {"module": "dext.common.utils.urls"},
@@ -133,7 +135,8 @@
                       "game_tests_helpers": {"module": "the_tale.game.tests.helpers"},
                       "abilities_tests_helpers": {"module": "the_tale.game.abilities.tests.helpers"},
                       "pvp_tests_helpers": {"module": "the_tale.game.pvp.tests.helpers"},
-                      "quests_tests_helpers": {"module": "the_tale.game.quests.tests.helpers"}
+                      "quests_tests_helpers": {"module": "the_tale.game.quests.tests.helpers"},
+                      "linguistics_tests_helpers": {"module": "the_tale.linguistics.tests.helpers"}
                   }
               },
               "rule_stdlib": {}}

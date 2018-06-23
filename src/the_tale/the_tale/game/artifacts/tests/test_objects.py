@@ -1,42 +1,14 @@
 
-import random
+import smart_imports
 
-from unittest import mock
-
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.linguistics import relations as linguistics_relations
-
-from the_tale.game import names
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance.power import Power, PowerDistribution
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.mobs import relations as mobs_relations
-
-from the_tale.game.heroes import logic as heroes_logic
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.mobs import logic as mobs_logic
-from the_tale.game.mobs import objects as mobs_objects
-
-from .. import exceptions
-from .. import relations
-from .. import storage
-from .. import objects
-from .. import logic
-from .. import forms
+smart_imports.all()
 
 
-class ArtifactTests(testcase.TestCase):
+class ArtifactTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(ArtifactTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(account_id=account.id)
@@ -46,12 +18,12 @@ class ArtifactTests(testcase.TestCase):
         self.artifact_record = storage.artifacts.all()[0]
 
     def test_serialization(self):
-        artifact = storage.artifacts.all()[0].create_artifact(level=6, power=Power(1, 100))
+        artifact = storage.artifacts.all()[0].create_artifact(level=6, power=power.Power(1, 100))
         self.assertEqual(artifact, objects.Artifact.deserialize(artifact.serialize()))
 
     def test_deserialization_of_disabled_artifact(self):
         artifact_record = storage.artifacts.all()[0]
-        artifact = artifact_record.create_artifact(level=7, power=Power(1, 1))
+        artifact = artifact_record.create_artifact(level=7, power=power.Power(1, 1))
 
         data = artifact.serialize()
 
@@ -285,78 +257,78 @@ class ArtifactTests(testcase.TestCase):
         self.assertRaises(exceptions.DisableDefaultEquipmentError, logic.update_by_moderator, default_artifact, form)
 
     def test_preference_rating(self):
-        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, Power(100, 100), PowerDistribution(0.5, 0.5)), 100)
-        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, Power(100, 100), PowerDistribution(0.2, 0.8)), 100)
-        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, Power(100, 100), PowerDistribution(0.8, 0.2)), 100)
+        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, power.Power(100, 100), power.PowerDistribution(0.5, 0.5)), 100)
+        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, power.Power(100, 100), power.PowerDistribution(0.2, 0.8)), 100)
+        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, power.Power(100, 100), power.PowerDistribution(0.8, 0.2)), 100)
 
-        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, Power(100, 200), PowerDistribution(0.5, 0.5)), 150)
-        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, Power(100, 200), PowerDistribution(0.2, 0.8)), 180)
-        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, Power(100, 200), PowerDistribution(0.8, 0.2)), 120)
+        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, power.Power(100, 200), power.PowerDistribution(0.5, 0.5)), 150)
+        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, power.Power(100, 200), power.PowerDistribution(0.2, 0.8)), 180)
+        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, power.Power(100, 200), power.PowerDistribution(0.8, 0.2)), 120)
 
-        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, Power(200, 100), PowerDistribution(0.5, 0.5)), 150)
-        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, Power(200, 100), PowerDistribution(0.2, 0.8)), 120)
-        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, Power(200, 100), PowerDistribution(0.8, 0.2)), 180)
+        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, power.Power(200, 100), power.PowerDistribution(0.5, 0.5)), 150)
+        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, power.Power(200, 100), power.PowerDistribution(0.2, 0.8)), 120)
+        self.assertEqual(objects.Artifact._preference_rating(relations.RARITY.NORMAL, power.Power(200, 100), power.PowerDistribution(0.8, 0.2)), 180)
 
     def test_preference_rating__rarity(self):
-        self.assertTrue(objects.Artifact._preference_rating(relations.RARITY.NORMAL, Power(100, 100), PowerDistribution(0.5, 0.5)) <
-                        objects.Artifact._preference_rating(relations.RARITY.RARE, Power(100, 100), PowerDistribution(0.5, 0.5)) <
-                        objects.Artifact._preference_rating(relations.RARITY.EPIC, Power(100, 100), PowerDistribution(0.5, 0.5)))
+        self.assertTrue(objects.Artifact._preference_rating(relations.RARITY.NORMAL, power.Power(100, 100), power.PowerDistribution(0.5, 0.5)) <
+                        objects.Artifact._preference_rating(relations.RARITY.RARE, power.Power(100, 100), power.PowerDistribution(0.5, 0.5)) <
+                        objects.Artifact._preference_rating(relations.RARITY.EPIC, power.Power(100, 100), power.PowerDistribution(0.5, 0.5)))
 
     def test_make_better_than__already_better(self):
-        artifact_1 = self.artifact_record.create_artifact(level=1, power=Power(2, 2))
-        artifact_2 = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
+        artifact_1 = self.artifact_record.create_artifact(level=1, power=power.Power(2, 2))
+        artifact_2 = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
 
         old_power = artifact_1.power.clone()
 
-        artifact_1.make_better_than(artifact_2, PowerDistribution(0.5, 0.5))
+        artifact_1.make_better_than(artifact_2, power.PowerDistribution(0.5, 0.5))
 
         self.assertEqual(artifact_1.power, old_power)
 
     def test_make_better_than__physic(self):
-        artifact_1 = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
-        artifact_2 = self.artifact_record.create_artifact(level=1, power=Power(3, 3))
+        artifact_1 = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
+        artifact_2 = self.artifact_record.create_artifact(level=1, power=power.Power(3, 3))
 
-        artifact_1.make_better_than(artifact_2, PowerDistribution(1.0, 0))
+        artifact_1.make_better_than(artifact_2, power.PowerDistribution(1.0, 0))
 
         self.assertEqual(artifact_1.power.magic, 1)
         self.assertTrue(artifact_1.power.physic > 3)
 
     def test_make_better_than__magic(self):
-        artifact_1 = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
-        artifact_2 = self.artifact_record.create_artifact(level=1, power=Power(3, 3))
+        artifact_1 = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
+        artifact_2 = self.artifact_record.create_artifact(level=1, power=power.Power(3, 3))
 
-        artifact_1.make_better_than(artifact_2, PowerDistribution(0, 1.0))
+        artifact_1.make_better_than(artifact_2, power.PowerDistribution(0, 1.0))
 
         self.assertTrue(artifact_1.power.magic > 3)
         self.assertEqual(artifact_1.power.physic, 1)
 
     def test_make_better_than__both(self):
-        artifact_1 = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
-        artifact_2 = self.artifact_record.create_artifact(level=1, power=Power(100, 100))
+        artifact_1 = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
+        artifact_2 = self.artifact_record.create_artifact(level=1, power=power.Power(100, 100))
 
-        artifact_1.make_better_than(artifact_2, PowerDistribution(0.5, 0.5))
+        artifact_1.make_better_than(artifact_2, power.PowerDistribution(0.5, 0.5))
 
         self.assertTrue(artifact_1.power.physic > 100 or artifact_1.power.magic > 100)
 
     def test_sharp__no_choices(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
 
         old_integrity = artifact.integrity
         old_max_integrity = artifact.max_integrity
 
-        artifact.sharp(distribution=PowerDistribution(0.5, 0.5), max_power=Power(1, 1))
+        artifact.sharp(distribution=power.PowerDistribution(0.5, 0.5), max_power=power.Power(1, 1))
 
-        self.assertEqual(artifact.power, Power(1, 1))
+        self.assertEqual(artifact.power, power.Power(1, 1))
         self.assertEqual(old_integrity, artifact.integrity)
         self.assertEqual(old_max_integrity, artifact.max_integrity)
 
     def test_sharp__integrity_lost(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
 
         old_integrity = artifact.integrity
         old_max_integrity = artifact.max_integrity
 
-        artifact.sharp(distribution=PowerDistribution(0.5, 0.5), max_power=Power(3, 3))
+        artifact.sharp(distribution=power.PowerDistribution(0.5, 0.5), max_power=power.Power(3, 3))
 
         self.assertTrue(old_integrity > artifact.integrity)
         self.assertTrue(old_max_integrity > artifact.max_integrity)
@@ -366,45 +338,45 @@ class ArtifactTests(testcase.TestCase):
         old_integrity = artifact.integrity
         old_max_integrity = artifact.max_integrity
 
-        artifact.sharp(distribution=PowerDistribution(0.5, 0.5), max_power=Power(3, 3))
+        artifact.sharp(distribution=power.PowerDistribution(0.5, 0.5), max_power=power.Power(3, 3))
 
         self.assertEqual(old_integrity, artifact.integrity)
         self.assertTrue(old_max_integrity > artifact.max_integrity)
 
     def test_sharp__physic(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
-        artifact.sharp(distribution=PowerDistribution(1.0, 0.0), max_power=Power(3, 3))
-        artifact.sharp(distribution=PowerDistribution(1.0, 0.0), max_power=Power(3, 3))
-        self.assertEqual(artifact.power, Power(3, 1))
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
+        artifact.sharp(distribution=power.PowerDistribution(1.0, 0.0), max_power=power.Power(3, 3))
+        artifact.sharp(distribution=power.PowerDistribution(1.0, 0.0), max_power=power.Power(3, 3))
+        self.assertEqual(artifact.power, power.Power(3, 1))
 
     def test_sharp__magic(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
-        artifact.sharp(distribution=PowerDistribution(0.0, 1.0), max_power=Power(3, 3))
-        artifact.sharp(distribution=PowerDistribution(0.0, 1.0), max_power=Power(3, 3))
-        self.assertEqual(artifact.power, Power(1, 3))
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
+        artifact.sharp(distribution=power.PowerDistribution(0.0, 1.0), max_power=power.Power(3, 3))
+        artifact.sharp(distribution=power.PowerDistribution(0.0, 1.0), max_power=power.Power(3, 3))
+        self.assertEqual(artifact.power, power.Power(1, 3))
 
     def test_sharp__both(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
-        artifact.sharp(distribution=PowerDistribution(0.5, 0.5), max_power=Power(2, 2))
-        artifact.sharp(distribution=PowerDistribution(0.5, 0.5), max_power=Power(2, 2))
-        self.assertEqual(artifact.power, Power(2, 2))
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
+        artifact.sharp(distribution=power.PowerDistribution(0.5, 0.5), max_power=power.Power(2, 2))
+        artifact.sharp(distribution=power.PowerDistribution(0.5, 0.5), max_power=power.Power(2, 2))
+        self.assertEqual(artifact.power, power.Power(2, 2))
 
     def test_sharp__no_choices__and_force(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
-        artifact.sharp(distribution=PowerDistribution(0.5, 0.5), max_power=Power(1, 1), force=True)
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
+        artifact.sharp(distribution=power.PowerDistribution(0.5, 0.5), max_power=power.Power(1, 1), force=True)
         self.assertEqual(artifact.power.total(), 3)
 
     def test_can_be_broken__barrier(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
         self.assertFalse(artifact.can_be_broken())
 
     def test_can_be_broken(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
         artifact.integrity = int(artifact.max_integrity * (1-c.ARTIFACT_INTEGRITY_SAFE_BARRIER)) - 1
         self.assertTrue(artifact.can_be_broken())
 
     def test_break_it(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(100, 100))
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(100, 100))
         artifact.integrity = artifact.max_integrity / 2
 
         old_integrity = artifact.integrity
@@ -418,7 +390,7 @@ class ArtifactTests(testcase.TestCase):
         self.assertEqual(old_integrity, artifact.integrity)
 
     def test_break_it__zero(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
         artifact.integrity = artifact.max_integrity / 2
 
         old_integrity = artifact.integrity
@@ -426,33 +398,33 @@ class ArtifactTests(testcase.TestCase):
 
         artifact.break_it()
 
-        self.assertEqual(artifact.power, Power(1, 1))
+        self.assertEqual(artifact.power, power.Power(1, 1))
         self.assertTrue(old_max_integrity > artifact.max_integrity)
         self.assertEqual(old_integrity, artifact.integrity)
 
     def test_break_it__large_integrity(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
 
         old_max_integrity = artifact.max_integrity
 
         artifact.break_it()
 
-        self.assertEqual(artifact.power, Power(1, 1))
+        self.assertEqual(artifact.power, power.Power(1, 1))
         self.assertTrue(old_max_integrity > artifact.max_integrity)
         self.assertEqual(artifact.integrity, artifact.max_integrity)
 
     def test_repair_it(self):
-        artifact = self.artifact_record.create_artifact(level=1, power=Power(1, 1))
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
         artifact.integrity = artifact.max_integrity - 1
         artifact.repair_it()
         self.assertEqual(artifact.integrity, artifact.max_integrity)
 
 
-class WeaponTests(testcase.TestCase):
+class WeaponTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(WeaponTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.weapon = objects.Weapon(weapon=relations.STANDARD_WEAPON.WEAPON_5,
                                      material=tt_artifacts_relations.MATERIAL.MATERIAL_2,

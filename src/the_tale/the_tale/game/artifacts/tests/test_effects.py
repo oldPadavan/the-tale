@@ -1,21 +1,15 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.artifacts import relations
-from the_tale.game.artifacts import effects
-from the_tale.game.artifacts import storage
+smart_imports.all()
 
 
-class EffectsTests(testcase.TestCase):
+class EffectsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(EffectsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(account_id=account.id)

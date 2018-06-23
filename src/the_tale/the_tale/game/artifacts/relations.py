@@ -1,21 +1,15 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
 
-from tt_logic.artifacts.relations import WEAPON_TYPE
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance.power import PowerDistribution
-
-from the_tale.linguistics.lexicon.dictionary import noun
+smart_imports.all()
 
 
-class INDEX_ORDER_TYPE(DjangoEnum):
+class INDEX_ORDER_TYPE(rels_django.DjangoEnum):
     records = (('BY_LEVEL', 'by_level', 'по уровню'),
                ('BY_NAME', 'by_name', 'по имени'))
 
 
-class ARTIFACT_TYPE(DjangoEnum):
+class ARTIFACT_TYPE(rels_django.DjangoEnum):
 
     records = (('USELESS', 0, 'хлам'),
                ('MAIN_HAND', 1, 'основная рука'),
@@ -31,33 +25,33 @@ class ARTIFACT_TYPE(DjangoEnum):
                ('RING', 11, 'кольцо'))
 
 
-class ARTIFACT_POWER_TYPE(DjangoEnum):
-    distribution = Column()
+class ARTIFACT_POWER_TYPE(rels_django.DjangoEnum):
+    distribution = rels.Column()
 
-    records = (('MOST_MAGICAL', 0, 'магическая', PowerDistribution(0.1, 0.9)),
-               ('MAGICAL', 1, 'ближе к магии', PowerDistribution(0.25, 0.75)),
-               ('NEUTRAL', 2, 'равновесие', PowerDistribution(0.5, 0.5)),
-               ('PHYSICAL', 3, 'ближе к физике', PowerDistribution(0.75, 0.25)),
-               ('MOST_PHYSICAL', 4, 'физическая', PowerDistribution(0.9, 0.1)))
+    records = (('MOST_MAGICAL', 0, 'магическая', power.PowerDistribution(0.1, 0.9)),
+               ('MAGICAL', 1, 'ближе к магии', power.PowerDistribution(0.25, 0.75)),
+               ('NEUTRAL', 2, 'равновесие', power.PowerDistribution(0.5, 0.5)),
+               ('PHYSICAL', 3, 'ближе к физике', power.PowerDistribution(0.75, 0.25)),
+               ('MOST_PHYSICAL', 4, 'физическая', power.PowerDistribution(0.9, 0.1)))
 
 
-class ARTIFACT_RECORD_STATE(DjangoEnum):
+class ARTIFACT_RECORD_STATE(rels_django.DjangoEnum):
     records = (('ENABLED', 0, 'в игре'),
                ('DISABLED', 1, 'вне игры'))
 
 
-class RARITY(DjangoEnum):
-    probability = Column()
-    max_integrity = Column()
-    preference_rating = Column()
-    cost = Column()
+class RARITY(rels_django.DjangoEnum):
+    probability = rels.Column()
+    max_integrity = rels.Column()
+    preference_rating = rels.Column()
+    cost = rels.Column()
 
     records = (('NORMAL', 0, 'обычный артефакт', c.NORMAL_ARTIFACT_PROBABILITY, c.ARTIFACT_MAX_INTEGRITY, 1.0, 1.0),
                ('RARE', 1, 'редкий артефакт', c.RARE_ARTIFACT_PROBABILITY, int(c.ARTIFACT_MAX_INTEGRITY*c.ARTIFACT_RARE_MAX_INTEGRITY_MULTIPLIER), 1.5, 3.0),
                ('EPIC', 2, 'эпический артефакт', c.EPIC_ARTIFACT_PROBABILITY, int(c.ARTIFACT_MAX_INTEGRITY*c.ARTIFACT_EPIC_MAX_INTEGRITY_MULTIPLIER), 2.0, 9.0))
 
 
-class ARTIFACT_EFFECT(DjangoEnum):
+class ARTIFACT_EFFECT(rels_django.DjangoEnum):
 
     records = (('PHYSICAL_DAMAGE', 0, 'мощь'),
                ('MAGICAL_DAMAGE', 1, 'колдовство'),
@@ -109,10 +103,14 @@ class ARTIFACT_EFFECT(DjangoEnum):
                ('CHILD_GIFT', 100001, 'детский подарок'))
 
 
+WEAPON_TYPE = tt_artifacts_relations.WEAPON_TYPE
+noun = lexicon_dictionary.noun
+
+
 # TODO: use real artifacts instead thar enum
-class STANDARD_WEAPON(DjangoEnum):
-    weapon_type = Column(unique=False, no_index=True)
-    utg_name = Column(no_index=True)
+class STANDARD_WEAPON(rels_django.DjangoEnum):
+    weapon_type = rels.Column(unique=False, no_index=True)
+    utg_name = rels.Column(no_index=True)
 
     records = (('WEAPON_0', 0, 'булава', WEAPON_TYPE.TYPE_1, noun(['булава', 'булавы', 'булаве', 'булаву', 'булавой', 'булаве',
                                                                    'булавы', 'булав', 'булавам', 'булавы', 'булавами', 'булавах'], 'но,жр')),

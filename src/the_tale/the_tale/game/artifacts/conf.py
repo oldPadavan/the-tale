@@ -1,5 +1,7 @@
-# coding: utf-8
 
-from dext.common.utils.app_settings import app_settings
+import smart_imports
+
+smart_imports.all()
+
 
 artifacts_settings = app_settings( 'ARTIFACTS')

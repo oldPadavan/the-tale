@@ -1,19 +1,7 @@
 
-from utg import words as utg_words
+import smart_imports
 
-from dext.common.utils import s11n
-
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.linguistics import logic as linguistics_logic
-from the_tale.linguistics import relations as linguistics_relations
-
-from the_tale.game import names
-
-from . import models
-from . import objects
-from . import relations
-from . import exceptions
+smart_imports.all()
 
 
 def create_artifact_record(uuid,

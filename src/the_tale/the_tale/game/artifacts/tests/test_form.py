@@ -1,25 +1,19 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic import create_test_map
-
-from .. import forms
-from .. import logic
+smart_imports.all()
 
 
-from the_tale.linguistics.tests import helpers as linguistics_helpers
-
-
-class ArtifactFormsTests(testcase.TestCase):
+class ArtifactFormsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(ArtifactFormsTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
     def get_form_data(self):
         artifact = logic.create_random_artifact_record(uuid='sword')
 
-        data = linguistics_helpers.get_word_post_data(artifact.utg_name, prefix='name')
+        data = linguistics_tests_helpers.get_word_post_data(artifact.utg_name, prefix='name')
 
         data.update({
                 'level': '1',
