@@ -1,22 +1,10 @@
 
-from unittest import mock
-import datetime
+import smart_imports
 
-from the_tale.linguistics.tests import helpers as linguistics_helpers
-
-from the_tale.game import names
-
-from the_tale.game.places.models import Building
-from the_tale.game.places import logic as places_logic
-from the_tale.game.places.relations import BUILDING_STATE
-
-from .. import relations
-from ..prototypes import BillPrototype, VotePrototype
-from ..bills import BuildingRenaming
-from .helpers import BaseTestPrototypes
+smart_imports.all()
 
 
-class BuildingRenamingTests(BaseTestPrototypes):
+class BuildingRenamingTests(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(BuildingRenamingTests, self).setUp()
@@ -28,11 +16,10 @@ class BuildingRenamingTests(BaseTestPrototypes):
         self.building = places_logic.create_building(self.person_1, utg_name=names.generator().get_test_name('building-name'))
         self.building_2 = places_logic.create_building(self.person_2, utg_name=names.generator().get_test_name('building-name-2'))
 
-        self.bill_data = BuildingRenaming(person_id=self.person_1.id,
+        self.bill_data = bills.building_renaming.BuildingRenaming(person_id=self.person_1.id,
                                           old_place_name_forms=self.place1.utg_name,
                                           new_building_name_forms=names.generator().get_test_name('new-building-name'))
-        self.bill = BillPrototype.create(self.account1, 'bill-caption', self.bill_data, chronicle_on_accepted='chronicle-accepted-1')
-
+        self.bill = prototypes.BillPrototype.create(self.account1, 'bill-caption', self.bill_data, chronicle_on_accepted='chronicle-accepted-1')
 
     def test_create(self):
         self.assertEqual(self.bill.data.person_id, self.person_1.id)
@@ -43,7 +30,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
         self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place)])
 
     def test_update(self):
-        data = linguistics_helpers.get_word_post_data(names.generator().get_test_name('new-building-name-2'), prefix='name')
+        data = linguistics_tests_helpers.get_word_post_data(names.generator().get_test_name('new-building-name-2'), prefix='name')
         data.update({'caption': 'new-caption',
                      'chronicle_on_accepted': 'chronicle-on-accepted-2',
                      'person': self.person_2.id})
@@ -52,7 +39,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         self.bill.update(form)
 
-        self.bill = BillPrototype.get_by_id(self.bill.id)
+        self.bill = prototypes.BillPrototype.get_by_id(self.bill.id)
 
         self.assertEqual(self.bill.data.person_id, self.person_2.id)
         self.assertEqual(self.bill.data.old_name, 'building-name-2-нс,ед,им')
@@ -68,19 +55,18 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         self.assertEqual(set(persons_ids), set([self.person_1.id, self.person_2.id]))
 
-
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('r-building-name')
 
         data = {'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
-        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data.update(linguistics_tests_helpers.get_word_post_data(noun, prefix='name'))
         data['approved'] = True
 
         form = self.bill.data.get_moderator_form_update(data)
@@ -90,28 +76,27 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         self.assertTrue(self.bill.apply())
 
-        bill = BillPrototype.get_by_id(self.bill.id)
+        bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_ACCEPTED)
 
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
+        self.assertEqual(places_models.Building.objects.filter(state=places_relations.BUILDING_STATE.WORKING).count(), 2)
 
         building = places_logic.load_building(self.building.id)
 
         self.assertEqual(building.name, 'r-building-name-нс,ед,им')
 
-
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_is_make_sense__same_name(self):
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('r-building-name')
 
         data = {'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
-        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data.update(linguistics_tests_helpers.get_word_post_data(noun, prefix='name'))
         data['approved'] = True
 
         form = self.bill.data.get_moderator_form_update(data)
@@ -126,20 +111,19 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         self.assertFalse(self.bill.has_meaning())
 
-
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_no_building(self):
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('r-building-name')
 
         data = {'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
-        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data.update(linguistics_tests_helpers.get_word_post_data(noun, prefix='name'))
         data['approved'] = True
 
         form = self.bill.data.get_moderator_form_update(data)
@@ -151,7 +135,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         self.assertTrue(self.bill.apply())
 
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
+        self.assertEqual(places_models.Building.objects.filter(state=places_relations.BUILDING_STATE.WORKING).count(), 1)
 
         building = places_logic.load_building(self.building.id)
 
@@ -162,15 +146,15 @@ class BuildingRenamingTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_is_make_sense__no_building(self):
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('r-building-name')
 
         data = {'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
-        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data.update(linguistics_tests_helpers.get_word_post_data(noun, prefix='name'))
         data['approved'] = True
 
         form = self.bill.data.get_moderator_form_update(data)

@@ -1,33 +1,22 @@
 
-from unittest import mock
-import datetime
+import smart_imports
 
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-from the_tale.game.bills.bills import PlaceResourceExchange
-from the_tale.game.bills.bills.place_resource_exchange import ALLOWED_EXCHANGE_TYPES
-
-from .. import relations
-
-from the_tale.game.bills.tests.helpers import choose_exchange_resources, BaseTestPrototypes
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places.prototypes import ResourceExchangePrototype
-from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
+smart_imports.all()
 
 
-class PlaceResourceExchangeTests(BaseTestPrototypes):
+class PlaceResourceExchangeTests(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(PlaceResourceExchangeTests, self).setUp()
 
-        self.resource_1, self.resource_2 = choose_exchange_resources()
+        self.resource_1, self.resource_2 = helpers.choose_exchange_resources()
 
-        self.bill_data = PlaceResourceExchange(place_1_id=self.place1.id,
+        self.bill_data = bills.place_resource_exchange.PlaceResourceExchange(place_1_id=self.place1.id,
                                                place_2_id=self.place2.id,
                                                resource_1=self.resource_1,
                                                resource_2=self.resource_2)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data,
+        self.bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data,
                                          chronicle_on_accepted='chronicle-on-accepted')
 
     def test_create(self):
@@ -69,7 +58,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
         self.bill.update(form)
 
-        self.bill = BillPrototype.get_by_id(self.bill.id)
+        self.bill = prototypes.BillPrototype.get_by_id(self.bill.id)
 
         self.assertEqual(self.bill.data.place_1_id, self.place2.id)
         self.assertEqual(self.bill.data.place_2_id, self.place1.id)
@@ -126,7 +115,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.assertFalse(form.is_valid())
 
     def test_user_form_validation__not_allowed_resources(self):
-        for resource in RESOURCE_EXCHANGE_TYPE.records:
+        for resource in places_relations.RESOURCE_EXCHANGE_TYPE.records:
             if resource.is_NONE:
                 continue
 
@@ -135,15 +124,15 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
                                                              'place_1': self.place1.id,
                                                              'place_2': self.place2.id,
                                                              'resource_1': resource,
-                                                             'resource_2': RESOURCE_EXCHANGE_TYPE.NONE})
+                                                             'resource_2': places_relations.RESOURCE_EXCHANGE_TYPE.NONE})
 
-            self.assertEqual(form.is_valid(), resource in ALLOWED_EXCHANGE_TYPES)
+            self.assertEqual(form.is_valid(), resource in bills.place_resource_exchange.ALLOWED_EXCHANGE_TYPES)
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def apply_bill(self):
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -166,7 +155,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.assertNotEqual(old_storage_version, places_storage.resource_exchanges._version)
         self.assertEqual(len(places_storage.resource_exchanges.all()), 1)
 
-        bill = BillPrototype.get_by_id(self.bill.id)
+        bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_ACCEPTED)
 
         exchange = places_storage.resource_exchanges.all()[0]
@@ -181,7 +170,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
         old_storage_version = places_storage.resource_exchanges._version
 
-        decliner = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
+        decliner = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
 
         self.bill.decline(decliner)
 
@@ -193,7 +182,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     def test_decline__no_excange(self):
         self.apply_bill()
 
-        ResourceExchangePrototype._db_all().delete()
+        places_prototypes.ResourceExchangePrototype._db_all().delete()
 
         places_storage.resource_exchanges.refresh()
 
@@ -201,7 +190,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
         old_storage_version = places_storage.resource_exchanges._version
 
-        decliner = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
+        decliner = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
 
         self.bill.decline(decliner)
 
@@ -222,7 +211,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     def test_end__no_excange(self):
         self.apply_bill()
 
-        ResourceExchangePrototype._db_all().delete()
+        places_prototypes.ResourceExchangePrototype._db_all().delete()
 
         places_storage.resource_exchanges.refresh()
 
@@ -236,12 +225,12 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
 
     def test_has_meaning__not_connected(self):
-        bill_data = PlaceResourceExchange(place_1_id=self.place1.id,
+        bill_data = bills.place_resource_exchange.PlaceResourceExchange(place_1_id=self.place1.id,
                                           place_2_id=self.place3.id,
                                           resource_1=self.resource_1,
                                           resource_2=self.resource_2)
 
-        bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data,
+        bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', bill_data,
                                     chronicle_on_accepted='chronicle-on-accepted')
 
         self.assertFalse(bill.has_meaning())

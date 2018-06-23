@@ -1,14 +1,7 @@
-# coding: utf-8
-import time
-import datetime
 
-from the_tale import amqp_environment
+import smart_imports
 
-from the_tale.accounts import prototypes as accounts_prototypes
-
-from the_tale.game.bills import models
-from the_tale.game.bills import relations
-from the_tale.game.bills import conf
+smart_imports.all()
 
 
 def actual_bills_accepted_timestamps(account_id):

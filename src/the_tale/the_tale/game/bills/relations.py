@@ -1,13 +1,10 @@
 
-import datetime
+import smart_imports
 
-import rels
-from rels.django import DjangoEnum
-
-from the_tale.game.balance import constants as c
+smart_imports.all()
 
 
-class BILL_STATE(DjangoEnum):
+class BILL_STATE(rels_django.DjangoEnum):
     break_dependent_bills = rels.Column(unique=False)
 
     records = (('VOTING', 1, 'на голосовании', False),
@@ -17,7 +14,7 @@ class BILL_STATE(DjangoEnum):
                ('STOPPED', 5, 'потеряла смысл', True))
 
 
-class BILL_TYPE(DjangoEnum):
+class BILL_TYPE(rels_django.DjangoEnum):
     stability = rels.Column(unique=False, single_type=False)
     enabled = rels.Column(unique=False)
 
@@ -39,13 +36,13 @@ class BILL_TYPE(DjangoEnum):
                ('PERSON_REMOVE_SOCIAL_CONNECTION', 15, 'удалить социальную связь', 0.6 * c.PLACE_STABILITY_UNIT, True))
 
 
-class VOTE_TYPE(DjangoEnum):
+class VOTE_TYPE(rels_django.DjangoEnum):
     records = (('REFRAINED', 0, 'воздержался'),
                ('FOR', 1, '«за»'),
                ('AGAINST', 2, '«против»'))
 
 
-class VOTED_TYPE(DjangoEnum):
+class VOTED_TYPE(rels_django.DjangoEnum):
     vote_type = rels.Column(unique=False, single_type=False)
 
     records = (('NO', 'no', 'не голосовал', None),
@@ -60,7 +57,7 @@ def days_from_game_months(months):
     return delta.total_seconds() / (60*60*24.0)
 
 
-class POWER_BONUS_CHANGES(DjangoEnum):
+class POWER_BONUS_CHANGES(rels_django.DjangoEnum):
     bonus = rels.Column()
 
     BONUS = c.HERO_POWER_PER_DAY*4*4*4 # like 4-th grade power card

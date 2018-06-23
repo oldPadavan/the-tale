@@ -1,21 +1,10 @@
 
-from unittest import mock
-import datetime
+import smart_imports
 
-from the_tale.game import names
-
-from the_tale.game.places.models import Building
-from the_tale.game.places import logic as places_logic
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places.relations import BUILDING_STATE
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-from the_tale.game.bills.bills import BuildingDestroy
-from the_tale.game.bills.tests.helpers import BaseTestPrototypes
+smart_imports.all()
 
 
-class BuildingDestroyTests(BaseTestPrototypes):
+class BuildingDestroyTests(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(BuildingDestroyTests, self).setUp()
@@ -27,8 +16,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.building_1 = places_logic.create_building(self.person_1, utg_name=names.generator().get_test_name('building-name-1'))
         self.building_2 = places_logic.create_building(self.person_2, utg_name=names.generator().get_test_name('building-name-2'))
 
-        self.bill_data = BuildingDestroy(person_id=self.person_1.id, old_place_name_forms=self.place1.utg_name)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_data = bills.building_destroy.BuildingDestroy(person_id=self.person_1.id, old_place_name_forms=self.place1.utg_name)
+        self.bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
 
     def test_create(self):
@@ -45,7 +34,7 @@ class BuildingDestroyTests(BaseTestPrototypes):
 
         self.bill.update(form)
 
-        self.bill = BillPrototype.get_by_id(self.bill.id)
+        self.bill = prototypes.BillPrototype.get_by_id(self.bill.id)
 
         self.assertEqual(self.bill.data.person_id, self.person_2.id)
 
@@ -64,10 +53,10 @@ class BuildingDestroyTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
+        self.assertEqual(places_models.Building.objects.filter(state=places_relations.BUILDING_STATE.WORKING).count(), 2)
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -78,10 +67,10 @@ class BuildingDestroyTests(BaseTestPrototypes):
 
         self.assertTrue(self.bill.apply())
 
-        bill = BillPrototype.get_by_id(self.bill.id)
+        bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_ACCEPTED)
 
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
+        self.assertEqual(places_models.Building.objects.filter(state=places_relations.BUILDING_STATE.WORKING).count(), 1)
         self.assertEqual(len(places_storage.buildings.all()), 1)
 
         building = places_storage.buildings.all()[0]
@@ -92,10 +81,10 @@ class BuildingDestroyTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_duplicate_apply(self):
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
+        self.assertEqual(places_models.Building.objects.filter(state=places_relations.BUILDING_STATE.WORKING).count(), 2)
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -105,21 +94,21 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.bill.update_by_moderator(form)
         self.assertTrue(self.bill.apply())
 
-        bill = BillPrototype.get_by_id(self.bill.id)
+        bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         bill.state = relations.BILL_STATE.VOTING
         bill.save()
 
         self.assertTrue(bill.apply())
 
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
+        self.assertEqual(places_models.Building.objects.filter(state=places_relations.BUILDING_STATE.WORKING).count(), 1)
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_has_meaning__duplicate(self):
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
+        self.assertEqual(places_models.Building.objects.filter(state=places_relations.BUILDING_STATE.WORKING).count(), 2)
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -129,7 +118,7 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.bill.update_by_moderator(form)
         self.assertTrue(self.bill.apply())
 
-        bill = BillPrototype.get_by_id(self.bill.id)
+        bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         bill.state = relations.BILL_STATE.VOTING
         bill.save()
 
@@ -139,10 +128,10 @@ class BuildingDestroyTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_no_building(self):
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
+        self.assertEqual(places_models.Building.objects.filter(state=places_relations.BUILDING_STATE.WORKING).count(), 2)
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -155,16 +144,16 @@ class BuildingDestroyTests(BaseTestPrototypes):
 
         self.assertTrue(self.bill.apply())
 
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
+        self.assertEqual(places_models.Building.objects.filter(state=places_relations.BUILDING_STATE.WORKING).count(), 1)
 
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_has_meaning__no_building(self):
-        self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
+        self.assertEqual(places_models.Building.objects.filter(state=places_relations.BUILDING_STATE.WORKING).count(), 2)
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True

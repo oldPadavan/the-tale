@@ -1,19 +1,10 @@
 
-from unittest import mock
-import datetime
+import smart_imports
 
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-from the_tale.game.bills.bills import PlaceDescripton
-
-from the_tale.game.bills.tests.helpers import BaseTestPrototypes
-from the_tale.game.bills import relations
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import conf as places_conf
-from the_tale.game.places import logic as places_logic
+smart_imports.all()
 
 
-class PlaceDescriptionTests(BaseTestPrototypes):
+class PlaceDescriptionTests(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(PlaceDescriptionTests, self).setUp()
@@ -24,8 +15,8 @@ class PlaceDescriptionTests(BaseTestPrototypes):
 
         self.place_2 = places_storage.places.all()[1]
 
-        self.bill_data = PlaceDescripton(place_id=self.place.id, description='new description')
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_data = bills.place_description.PlaceDescripton(place_id=self.place.id, description='new description')
+        self.bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_create(self):
         self.assertEqual(self.bill.data.place_id, self.place.id)
@@ -43,7 +34,7 @@ class PlaceDescriptionTests(BaseTestPrototypes):
 
         self.bill.update(form)
 
-        self.bill = BillPrototype.get_by_id(self.bill.id)
+        self.bill = prototypes.BillPrototype.get_by_id(self.bill.id)
 
         self.assertEqual(self.bill.data.place_id, self.place_2.id)
         self.assertEqual(self.bill.data.description, 'new new description')
@@ -58,8 +49,8 @@ class PlaceDescriptionTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -70,7 +61,7 @@ class PlaceDescriptionTests(BaseTestPrototypes):
 
         self.assertTrue(self.bill.apply())
 
-        bill = BillPrototype.get_by_id(self.bill.id)
+        bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_ACCEPTED)
 
         self.assertNotEqual(self.place.description, 'old description' )
@@ -80,8 +71,8 @@ class PlaceDescriptionTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_has_meaning__duplicate_description(self):
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True

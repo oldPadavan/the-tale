@@ -1,27 +1,12 @@
 
-from django.forms import ValidationError
+import smart_imports
 
-from dext.forms import fields
-
-from utg import words as utg_words
-
-from the_tale.game.persons import logic as persons_logic
-from the_tale.game.persons import objects as persons_objects
-from the_tale.game.persons import storage as persons_storage
-from the_tale.game.persons import relations as persons_relations
-
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-from the_tale.game.bills.bills.base_bill import BaseBill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    person_1 = fields.ChoiceField(label='Первый Мастер')
-    person_2 = fields.ChoiceField(label='Второй Мастер')
+class BaseForm(forms.BaseUserForm):
+    person_1 = dext_fields.ChoiceField(label='Первый Мастер')
+    person_2 = dext_fields.ChoiceField(label='Второй Мастер')
 
     def __init__(self, person_1_id, person_2_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -43,15 +28,15 @@ class BaseForm(BaseUserForm):
         person_2 = persons_storage.persons[int(cleaned_data['person_2'])]
 
         if person_1.id == person_2.id:
-            raise ValidationError('Необхоимо выбрать двух разных Мастеров')
+            raise django_forms.ValidationError('Необхоимо выбрать двух разных Мастеров')
 
         connection = persons_storage.social_connections.get_connection(person_1, person_2)
 
         if connection is None:
-            raise ValidationError('Мастера не имеют связи')
+            raise django_forms.ValidationError('Мастера не имеют связи')
 
         if not connection.can_be_removed():
-            raise ValidationError('Эту связь пока нельзя разорвать, дождитесь пока она просуществует минимально допустимое время')
+            raise django_forms.ValidationError('Эту связь пока нельзя разорвать, дождитесь пока она просуществует минимально допустимое время')
 
         return cleaned_data
 
@@ -73,16 +58,16 @@ class UserForm(BaseForm):
 
         if (not politic_power_logic.get_inner_circle(person_id=person_1.id).in_circle(self.owner_id) and
             not politic_power_logic.get_inner_circle(person_id=person_2.id).in_circle(self.owner_id)):
-            raise ValidationError('Вы не состоите в ближнем круге ни одного из Мастеров')
+            raise django_forms.ValidationError('Вы не состоите в ближнем круге ни одного из Мастеров')
 
         return cleaned_data
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
-class PersonRemoveSocialConnection(BaseBill):
+class PersonRemoveSocialConnection(base_bill.BaseBill):
     type = relations.BILL_TYPE.PERSON_REMOVE_SOCIAL_CONNECTION
 
     UserForm = UserForm

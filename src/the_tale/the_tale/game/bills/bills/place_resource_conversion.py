@@ -1,21 +1,7 @@
 
-from django.forms import ValidationError
+import smart_imports
 
-import rels
-from rels.django import DjangoEnum
-
-from dext.forms import fields
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places.prototypes import ResourceExchangePrototype
-from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
-
-from . import base_place_bill
+smart_imports.all()
 
 
 def _conversion_record(name, id_, resource_from, resource_from_delta, resource_to, resource_to_delta):
@@ -28,7 +14,10 @@ def _conversion_record(name, id_, resource_from, resource_from_delta, resource_t
             resource_to_delta)
 
 
-class CONVERSION(DjangoEnum):
+RESOURCE_EXCHANGE_TYPE = places_relations.RESOURCE_EXCHANGE_TYPE
+
+
+class CONVERSION(rels_django.DjangoEnum):
     resource_from = rels.Column(unique=False)
     resource_from_delta = rels.Column(unique=False)
     resource_to = rels.Column(unique=False)
@@ -51,9 +40,9 @@ class CONVERSION(DjangoEnum):
         )
 
 
-class BaseForm(BaseUserForm):
-    place = fields.ChoiceField(label='Город')
-    conversion = fields.TypedChoiceField(label='Тип конверсии', choices=CONVERSION.choices(), coerce=CONVERSION.get_from_name)
+class BaseForm(forms.BaseUserForm):
+    place = dext_fields.ChoiceField(label='Город')
+    conversion = dext_fields.TypedChoiceField(label='Тип конверсии', choices=CONVERSION.choices(), coerce=CONVERSION.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -65,7 +54,7 @@ class BaseForm(BaseUserForm):
         place = places_storage.places.get(int(cleaned_data['place']))
 
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place)) ):
-            raise ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных записей в Книге Судеб' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
+            raise django_forms.ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных записей в Книге Судеб' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
 
         return cleaned_data
 
@@ -74,7 +63,7 @@ class UserForm(BaseForm):
     pass
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
@@ -105,7 +94,7 @@ class PlaceResourceConversion(base_place_bill.BasePlaceBill):
 
     def apply(self, bill=None):
         if self.has_meaning():
-            ResourceExchangePrototype.create(place_1=self.place,
+            places_prototypes.ResourceExchangePrototype.create(place_1=self.place,
                                              place_2=None,
                                              resource_1=self.conversion.resource_from,
                                              resource_2=self.conversion.resource_to,

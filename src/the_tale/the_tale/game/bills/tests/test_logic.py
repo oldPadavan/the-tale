@@ -1,14 +1,10 @@
 
-import time
-import datetime
+import smart_imports
 
-from unittest import mock
-
-from .. import logic
-from .helpers import BaseTestPrototypes
+smart_imports.all()
 
 
-class LogicTests(BaseTestPrototypes):
+class LogicTests(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(LogicTests, self).setUp()
@@ -22,7 +18,7 @@ class LogicTests(BaseTestPrototypes):
 
         self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [])
 
-        bill_data = bills.PlaceModifier(place_id=self.place1.id,
+        bill_data = bills.place_change_modifier.PlaceModifier(place_id=self.place1.id,
                                         modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
                                         modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                         old_modifier_name=None)
@@ -43,7 +39,7 @@ class LogicTests(BaseTestPrototypes):
 
         # second bill
 
-        bill_data = bills.PlaceModifier(place_id=self.place1.id,
+        bill_data = bills.place_change_modifier.PlaceModifier(place_id=self.place1.id,
                                         modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
                                         modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                         old_modifier_name=None)
@@ -64,7 +60,7 @@ class LogicTests(BaseTestPrototypes):
 
         # third bill
 
-        bill_data = bills.PlaceModifier(place_id=self.place1.id,
+        bill_data = bills.place_change_modifier.PlaceModifier(place_id=self.place1.id,
                                         modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
                                         modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                         old_modifier_name=None)

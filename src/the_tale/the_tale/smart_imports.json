@@ -3,14 +3,18 @@
                     "rule_local_modules",
                     "rule_prefix",
                     "rule_parent_modules",
+                    "rule_local_from_namespace",
                     "rule_stdlib",
                     "rule_predefined_names"],
 
     "rules": {"rule_predefined_names": {},
               "rule_local_modules": {},
               "rule_parent_modules": {
-                  "suffixes": ["tests",
-                               "deck"]
+                  "suffixes": ["tests"]
+              },
+              "rule_local_from_namespace": {
+                  "map": {"the_tale.game.bills.bills": "the_tale.game.bills",
+                          "the_tale.game.abilities.deck": "the_tale.game.abilities"}
               },
               "rule_prefix": {
                   "prefixes": [
@@ -41,7 +45,8 @@
                       {"prefix": "politic_power_", "module": "the_tale.game.politic_power"},
                       {"prefix": "abilities_", "module": "the_tale.game.abilities"},
                       {"prefix": "abilities_deck_", "module": "the_tale.game.abilities.deck"},
-                      {"prefix": "lexicon_", "module": "the_tale.linguistics.lexicon"}
+                      {"prefix": "lexicon_", "module": "the_tale.linguistics.lexicon"},
+                      {"prefix": "forum_", "module": "the_tale.forum"}
                   ]
               },
               "rule_custom": {
@@ -60,12 +65,14 @@
                       "dext_old_views": {"module": "dext.views"},
                       "dext_discovering": {"module": "dext.common.utils.discovering"},
 
+                      "django_dispatch": {"module": "django.dispatch"},
                       "django_models": {"module": "django.db.models"},
                       "django_admin": {"module": "django.contrib.admin"},
                       "django_settings": {"module": "django.conf", "attribute": "settings"},
                       "django_forms": {"module": "django.forms"},
                       "django_postgres_fields": {"module": "django.contrib.postgres.fields"},
                       "django_reverse": {"module": "django.core.urlresolvers", "attribute": "reverse"},
+                      "django_transaction": {"module": "django.db.transaction"},
 
                       "s11n": {"module": "dext.common.utils.s11n"},
 

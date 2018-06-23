@@ -1,23 +1,12 @@
-# coding: utf-8
 
-from django.forms import ValidationError
+import smart_imports
 
-from dext.forms import fields
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import logic as places_logic
-
-from . import base_place_bill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    place = fields.ChoiceField(label='Город')
-    new_race = fields.TypedChoiceField(label='Новая раса',
+class BaseForm(forms.BaseUserForm):
+    place = dext_fields.ChoiceField(label='Город')
+    new_race = dext_fields.TypedChoiceField(label='Новая раса',
                                        choices=sorted([(record, record.multiple_text) for record in game_relations.RACE.records], key=lambda g: g[1]),
                                        coerce=game_relations.RACE.get_from_name)
 
@@ -33,10 +22,10 @@ class BaseForm(BaseUserForm):
 
         if race:
             if race == place.race:
-                raise ValidationError('Город уже принадлежит выбранной расе.')
+                raise django_forms.ValidationError('Город уже принадлежит выбранной расе.')
 
             if not any(race == person.race for person in place.persons):
-                raise ValidationError('В городе должен быть Мастер соответствующей расы.')
+                raise django_forms.ValidationError('В городе должен быть Мастер соответствующей расы.')
 
         return cleaned_data
 
@@ -45,7 +34,7 @@ class UserForm(BaseForm):
     pass
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 

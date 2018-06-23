@@ -1,12 +1,8 @@
-# coding: utf-8
 
-from utg import words as utg_words
+import smart_imports
 
-from the_tale.game import names
+smart_imports.all()
 
-from the_tale.game.bills.bills import base_bill
-
-from the_tale.game.places import storage as places_storage
 
 class BasePlaceBill(base_bill.BaseBill):
     type = None

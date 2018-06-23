@@ -1,26 +1,10 @@
 
-import random
-import datetime
+import smart_imports
 
-from unittest import mock
-
-from the_tale.linguistics.tests import helpers as linguistics_helpers
-
-from the_tale.game import names
-
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game.places.models import Building
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import logic as places_logic
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-from the_tale.game.bills.bills import BuildingCreate
-from the_tale.game.bills.tests.helpers import BaseTestPrototypes
+smart_imports.all()
 
 
-class BuildingCreateTests(BaseTestPrototypes):
+class BuildingCreateTests(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(BuildingCreateTests, self).setUp()
@@ -31,12 +15,12 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.accepted_position_1 = random.choice(list(places_logic.get_available_positions(center_x=self.person_1.place.x, center_y=self.person_1.place.y)))
         self.accepted_position_2 = random.choice(list(places_logic.get_available_positions(center_x=self.person_2.place.x, center_y=self.person_2.place.y)))
 
-        self.bill_data = BuildingCreate(person_id=self.person_1.id,
+        self.bill_data = bills.building_create.BuildingCreate(person_id=self.person_1.id,
                                         old_place_name_forms=self.place1.utg_name,
                                         utg_name=names.generator().get_test_name('building-name'),
                                         x=self.accepted_position_1[0],
                                         y=self.accepted_position_1[1])
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_create(self):
         self.assertEqual(self.bill.data.person_id, self.person_1.id)
@@ -47,7 +31,7 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place)])
 
     def test_update(self):
-        data = linguistics_helpers.get_word_post_data(names.generator().get_test_name('new-building-name'), prefix='name')
+        data = linguistics_tests_helpers.get_word_post_data(names.generator().get_test_name('new-building-name'), prefix='name')
         data.update({'caption': 'new-caption',
                      'chronicle_on_accepted': 'chronicle-on-accepted',
                      'person': self.person_2.id,
@@ -59,7 +43,7 @@ class BuildingCreateTests(BaseTestPrototypes):
 
         self.bill.update(form)
 
-        self.bill = BillPrototype.get_by_id(self.bill.id)
+        self.bill = prototypes.BillPrototype.get_by_id(self.bill.id)
 
         self.assertEqual(self.bill.data.person_id, self.person_2.id)
         self.assertEqual(self.bill.data.x, self.accepted_position_2[0])
@@ -93,15 +77,15 @@ class BuildingCreateTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
-        self.assertEqual(Building.objects.all().count(), 0)
+        self.assertEqual(places_models.Building.objects.all().count(), 0)
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('r-building-name')
 
         data = self.bill.user_form_initials
-        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data.update(linguistics_tests_helpers.get_word_post_data(noun, prefix='name'))
         data['approved'] = True
         form = self.bill.data.get_moderator_form_update(data)
 
@@ -110,10 +94,10 @@ class BuildingCreateTests(BaseTestPrototypes):
 
         self.assertTrue(self.bill.apply())
 
-        bill = BillPrototype.get_by_id(self.bill.id)
+        bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_ACCEPTED)
 
-        self.assertEqual(Building.objects.all().count(), 1)
+        self.assertEqual(places_models.Building.objects.all().count(), 1)
 
         building = places_storage.buildings.all()[0]
 
@@ -126,15 +110,15 @@ class BuildingCreateTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_duplicate_apply(self):
-        self.assertEqual(Building.objects.all().count(), 0)
+        self.assertEqual(places_models.Building.objects.all().count(), 0)
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('building-name')
 
         data = self.bill.user_form_initials
-        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data.update(linguistics_tests_helpers.get_word_post_data(noun, prefix='name'))
         data['approved'] = True
         form = self.bill.data.get_moderator_form_update(data)
 
@@ -143,12 +127,12 @@ class BuildingCreateTests(BaseTestPrototypes):
 
         dup_noun = names.generator().get_test_name('dup-building-name')
 
-        bill = BillPrototype.get_by_id(self.bill.id)
+        bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         bill.state = relations.BILL_STATE.VOTING
         bill.save()
 
         data = bill.user_form_initials
-        data.update(linguistics_helpers.get_word_post_data(dup_noun, prefix='name'))
+        data.update(linguistics_tests_helpers.get_word_post_data(dup_noun, prefix='name'))
         data['approved'] = True
         form = bill.data.get_moderator_form_update(data)
 
@@ -161,9 +145,9 @@ class BuildingCreateTests(BaseTestPrototypes):
         # apply second bill
         self.assertTrue(bill.apply())
 
-        self.assertEqual(Building.objects.all().count(), 1)
+        self.assertEqual(places_models.Building.objects.all().count(), 1)
 
-        building = places_logic.load_building(Building.objects.all()[0].id)
+        building = places_logic.load_building(places_models.Building.objects.all()[0].id)
 
         self.assertEqual(building.utg_name, noun)
         self.assertNotEqual(building.utg_name, dup_noun)
@@ -171,15 +155,15 @@ class BuildingCreateTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_has_meaning__duplicate(self):
-        self.assertEqual(Building.objects.all().count(), 0)
+        self.assertEqual(places_models.Building.objects.all().count(), 0)
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('building-name')
 
         data = self.bill.user_form_initials
-        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data.update(linguistics_tests_helpers.get_word_post_data(noun, prefix='name'))
         data['approved'] = True
         form = self.bill.data.get_moderator_form_update(data)
 
@@ -187,9 +171,9 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.bill.update_by_moderator(form)
         self.assertTrue(self.bill.apply())
 
-        form = BuildingCreate.ModeratorForm(data)
+        form = bills.building_create.BuildingCreate.ModeratorForm(data)
 
-        bill = BillPrototype.get_by_id(self.bill.id)
+        bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         bill.state = relations.BILL_STATE.VOTING
         bill.save()
 

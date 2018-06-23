@@ -1,30 +1,13 @@
 
-from django.forms import ValidationError
+import smart_imports
 
-from dext.forms import fields
-
-from utg import words as utg_words
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.persons import logic as persons_logic
-from the_tale.game.persons import objects as persons_objects
-from the_tale.game.persons import storage as persons_storage
-from the_tale.game.persons import relations as persons_relations
-
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-from the_tale.game.bills.bills.base_bill import BaseBill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    person_1 = fields.ChoiceField(label='Первый Мастер')
-    person_2 = fields.ChoiceField(label='Второй Мастер')
-    connection_type = fields.RelationField(label='Тип связи', relation=persons_relations.SOCIAL_CONNECTION_TYPE)
+class BaseForm(forms.BaseUserForm):
+    person_1 = dext_fields.ChoiceField(label='Первый Мастер')
+    person_2 = dext_fields.ChoiceField(label='Второй Мастер')
+    connection_type = dext_fields.RelationField(label='Тип связи', relation=persons_relations.SOCIAL_CONNECTION_TYPE)
 
     def __init__(self, person_1_id, person_2_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -46,14 +29,14 @@ class BaseForm(BaseUserForm):
         person_2 = persons_storage.persons[int(cleaned_data['person_2'])]
 
         if person_1.id == person_2.id:
-            raise ValidationError('Нужно выбрать разных Мастеров')
+            raise django_forms.ValidationError('Нужно выбрать разных Мастеров')
 
         if persons_storage.social_connections.is_connected(person_1, person_2):
-            raise ValidationError('Мастера уже имеют социальную связь')
+            raise django_forms.ValidationError('Мастера уже имеют социальную связь')
 
         if (persons_storage.social_connections.connections_limit_reached(person_1) or
             persons_storage.social_connections.connections_limit_reached(person_2)):
-            raise ValidationError('Один из Мастеров уже имеет максимум связей')
+            raise django_forms.ValidationError('Один из Мастеров уже имеет максимум связей')
 
         return cleaned_data
 
@@ -68,16 +51,16 @@ class UserForm(BaseForm):
         person_id = person_id = int(self.cleaned_data['person_1'])
 
         if not politic_power_logic.get_inner_circle(person_id=person_id).in_circle(self.owner_id):
-            raise ValidationError('Ваш герой должен быть в ближнем круге первого Мастера')
+            raise django_forms.ValidationError('Ваш герой должен быть в ближнем круге первого Мастера')
 
         return person_id
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
-class PersonAddSocialConnection(BaseBill):
+class PersonAddSocialConnection(base_bill.BaseBill):
     type = relations.BILL_TYPE.PERSON_ADD_SOCIAL_CONNECTION
 
     UserForm = UserForm

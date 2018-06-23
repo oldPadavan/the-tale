@@ -1,11 +1,12 @@
 
-from django.conf import settings as project_settings
+import smart_imports
 
-from dext.common.utils.app_settings import app_settings
+smart_imports.all()
 
-bills_settings = app_settings('BILLS',
+
+bills_settings = app_settings.app_settings('BILLS',
                               RATIONALE_MIN_LENGTH=100,
-                              CHRONICLE_MIN_LENGTH=100 if not project_settings.TESTS_RUNNING else 5,
+                              CHRONICLE_MIN_LENGTH=100 if not django_settings.TESTS_RUNNING else 5,
                               CHRONICLE_MAX_LENGTH=1000,
                               MIN_VOTES_PERCENT=0.6,
                               BILL_LIVE_TIME=4*24*60*60,
