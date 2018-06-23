@@ -1,23 +1,10 @@
 
-import uuid
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game import logic as game_logic
-
-from the_tale.game.companions import models as companions_models
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-from the_tale.game.companions import relations as companions_relations
-from the_tale.game.companions.tests import helpers as companions_helpers
-
-from .. import cards
-from .. import tt_api
-from .. import objects
-from .. import relations
+smart_imports.all()
 
 
-class TTStorageAPiTests(testcase.TestCase):
+class TTStorageAPiTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -27,7 +14,7 @@ class TTStorageAPiTests(testcase.TestCase):
         companions_models.CompanionRecord.objects.all().delete()
         companions_storage.companions.refresh()
 
-        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
+        for rarity, rarity_abilities in companions_tests_helpers.RARITIES_ABILITIES.items():
             companions_logic.create_random_companion_record('%s companion' % rarity,
                                                             mode=companions_relations.MODE.AUTOMATIC,
                                                             abilities=rarity_abilities,

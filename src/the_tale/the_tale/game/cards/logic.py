@@ -1,43 +1,35 @@
 
-from django.conf import settings as project_settings
+import smart_imports
 
-from dext.common.utils.urls import url
-
-from the_tale.common.utils.logic import random_value_by_priority
-
-from the_tale.game.cards import conf
-
-from . import cards
-from . import tt_api
-from . import relations
+smart_imports.all()
 
 
 def receive_cards_url():
-    return url('game:cards:api-receive-cards', api_version=conf.settings.RECEIVE_API_VERSION, api_client=project_settings.API_CLIENT)
+    return dext_urls.url('game:cards:api-receive-cards', api_version=conf.settings.RECEIVE_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def combine_cards_url():
-    return url('game:cards:api-combine', api_version=conf.settings.COMBINE_API_VERSION, api_client=project_settings.API_CLIENT)
+    return dext_urls.url('game:cards:api-combine', api_version=conf.settings.COMBINE_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def move_to_storage_url():
-    return url('game:cards:api-move-to-storage', api_version=conf.settings.MOVE_TO_STORAGE_API_VERSION, api_client=project_settings.API_CLIENT)
+    return dext_urls.url('game:cards:api-move-to-storage', api_version=conf.settings.MOVE_TO_STORAGE_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def move_to_hand_url():
-    return url('game:cards:api-move-to-hand', api_version=conf.settings.MOVE_TO_HAND_API_VERSION, api_client=project_settings.API_CLIENT)
+    return dext_urls.url('game:cards:api-move-to-hand', api_version=conf.settings.MOVE_TO_HAND_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def use_card_url(card_uid):
-    return url('game:cards:api-use', card=card_uid, api_version=conf.settings.USE_API_VERSION, api_client=project_settings.API_CLIENT)
+    return dext_urls.url('game:cards:api-use', card=card_uid, api_version=conf.settings.USE_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def get_cards_url():
-    return url('game:cards:api-get-cards', api_version=conf.settings.GET_CARDS_API_VERSION, api_client=project_settings.API_CLIENT)
+    return dext_urls.url('game:cards:api-get-cards', api_version=conf.settings.GET_CARDS_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def transform_cards_url():
-    return url('game:cards:api-combine', api_version=conf.settings.COMBINE_API_VERSION, api_client=project_settings.API_CLIENT)
+    return dext_urls.url('game:cards:api-combine', api_version=conf.settings.COMBINE_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
 def create_card(allow_premium_cards, rarity=None, exclude=(), available_for_auction=False):
@@ -58,7 +50,7 @@ def create_card(allow_premium_cards, rarity=None, exclude=(), available_for_auct
 
     prioritites = [(card, card.type.rarity.priority) for card in cards_choices]
 
-    return random_value_by_priority(prioritites)
+    return utils_logic.random_value_by_priority(prioritites)
 
 
 def get_combined_card(allow_premium_cards, combined_cards):

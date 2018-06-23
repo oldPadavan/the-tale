@@ -1,33 +1,14 @@
 
-import uuid
-import collections
+import smart_imports
 
-from unittest import mock
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-from the_tale.game import relations as game_relations
-
-from the_tale.game.companions import models as companions_models
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-from the_tale.game.companions import relations as companions_relations
-from the_tale.game.companions.tests import helpers as companions_helpers
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from .. import logic
-from .. import cards
-from .. import effects
-from .. import relations
+smart_imports.all()
 
 
-class CreateCardTest(testcase.TestCase):
+class CreateCardTest(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
     def test_single_card(self):
         card = logic.create_card(allow_premium_cards=False)
@@ -41,7 +22,7 @@ class CreateCardTest(testcase.TestCase):
         companions_models.CompanionRecord.objects.all().delete()
         companions_storage.companions.refresh()
 
-        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
+        for rarity, rarity_abilities in companions_tests_helpers.RARITIES_ABILITIES.items():
             companions_logic.create_random_companion_record('%s companion' % rarity,
                                                             mode=companions_relations.MODE.AUTOMATIC,
                                                             abilities=rarity_abilities,
@@ -93,7 +74,7 @@ class CreateCardTest(testcase.TestCase):
         companions_models.CompanionRecord.objects.all().delete()
         companions_storage.companions.refresh()
 
-        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
+        for rarity, rarity_abilities in companions_tests_helpers.RARITIES_ABILITIES.items():
             companions_logic.create_random_companion_record('%s companion' % rarity,
                                                             mode=companions_relations.MODE.AUTOMATIC,
                                                             abilities=rarity_abilities,
@@ -120,7 +101,7 @@ class CreateCardTest(testcase.TestCase):
         companions_models.CompanionRecord.objects.all().delete()
         companions_storage.companions.refresh()
 
-        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
+        for rarity, rarity_abilities in companions_tests_helpers.RARITIES_ABILITIES.items():
             companions_logic.create_random_companion_record('%s companion' % rarity,
                                                             mode=companions_relations.MODE.AUTOMATIC,
                                                             abilities=rarity_abilities,
@@ -138,11 +119,11 @@ class CreateCardTest(testcase.TestCase):
         self.assertEqual(set(card.type for card in created_cards), set(card_type for card_type in cards.CARD.records))
 
 
-class GetCombinedCardTests(testcase.TestCase):
+class GetCombinedCardTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
     def create_card(self, type, available_for_auction=True, uid=None):
         return type.effect.create_card(type=type,

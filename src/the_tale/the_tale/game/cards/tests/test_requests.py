@@ -1,45 +1,18 @@
 
-import uuid
+import smart_imports
 
-from unittest import mock
-
-from dext.common.utils.urls import url
-
-from django.conf import settings as project_settings
-
-from tt_protocol.protocol import timers_pb2
-
-from tt_logic.cards import constants as logic_cards_constants
-
-from the_tale.common.utils import testcase
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.accounts import tt_api as accounts_tt_api
-from the_tale.accounts import relations as accounts_relations
-
-from the_tale.game.logic import create_test_map
-from the_tale.game import names
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.places import logic as places_logic
-
-from .. import relations
-from .. import objects
-from .. import tt_api
-from .. import logic
-from .. import cards
+smart_imports.all()
 
 
-class CardsRequestsTestsBase(testcase.TestCase):
+class CardsRequestsTestsBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(CardsRequestsTestsBase, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -53,17 +26,17 @@ class CardsRequestsTestsBase(testcase.TestCase):
 class UseDialogRequestTests(CardsRequestsTestsBase):
 
     def test_unlogined(self):
-        self.check_html_ok(self.request_ajax_html(url('game:cards:use-dialog', card=uuid.uuid4().hex)), texts=['common.login_required'])
+        self.check_html_ok(self.request_ajax_html(dext_urls.url('game:cards:use-dialog', card=uuid.uuid4().hex)), texts=['common.login_required'])
 
     def test_no_cards(self):
         self.request_login(self.account.email)
-        self.check_html_ok(self.request_ajax_html(url('game:cards:use-dialog', card=uuid.uuid4().hex)), texts=['pgf-error-card.wrong_value'])
+        self.check_html_ok(self.request_ajax_html(dext_urls.url('game:cards:use-dialog', card=uuid.uuid4().hex)), texts=['pgf-error-card.wrong_value'])
 
     def test_has_cards(self):
         tt_api.change_cards(self.hero.account_id, operation_type='#test', to_add=[self.card])
 
         self.request_login(self.account.email)
-        self.check_html_ok(self.request_ajax_html(url('game:cards:use-dialog', card=self.card.uid)))
+        self.check_html_ok(self.request_ajax_html(dext_urls.url('game:cards:use-dialog', card=self.card.uid)))
 
     def test_every_card(self):
         self.request_login(self.account.email)
@@ -78,7 +51,7 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
             card = card_type.effect.create_card(available_for_auction=True, type=card_type)
             tt_api.change_cards(self.hero.account_id, operation_type='#test', to_add=[card])
 
-            self.check_html_ok(self.request_ajax_html(url('game:cards:use-dialog', card=self.card.uid)))
+            self.check_html_ok(self.request_ajax_html(dext_urls.url('game:cards:use-dialog', card=self.card.uid)))
 
 
 class UseRequestTests(CardsRequestsTestsBase):
@@ -117,17 +90,17 @@ class TestIndexRequests(CardsRequestsTestsBase):
 
     def test_simple(self):
         texts = [card.text for card in cards.CARD.records]
-        self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)
+        self.check_html_ok(self.request_html(dext_urls.url('guide:cards:')), texts=texts)
 
     def test_rarity_filter(self):
         for rarity in relations.RARITY.records:
             texts = [card.text for card in cards.CARD.records if card.rarity == rarity]
-            self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)
+            self.check_html_ok(self.request_html(dext_urls.url('guide:cards:')), texts=texts)
 
     def test_availability_filter(self):
         for availability in relations.AVAILABILITY.records:
             texts = [card.text for card in cards.CARD.records if card.availability == availability]
-            self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)
+            self.check_html_ok(self.request_html(dext_urls.url('guide:cards:')), texts=texts)
 
 
 class GetCardRequestsTests(CardsRequestsTestsBase):
@@ -315,22 +288,22 @@ class TakeCardCallbackTests(CardsRequestsTestsBase):
                                        secret=secret).SerializeToString()
 
     def test_no_post_data(self):
-        self.check_ajax_error(self.post_ajax_json(url('game:cards:tt-take-card-callback')), 'common.wrong_tt_post_data', status_code=500)
+        self.check_ajax_error(self.post_ajax_json(dext_urls.url('game:cards:tt-take-card-callback')), 'common.wrong_tt_post_data', status_code=500)
 
         cards = tt_api.load_cards(self.account.id)
         self.assertEqual(cards, {})
 
     def test_wrong_secret_key(self):
         data = self.create_data(secret='wrong.secret')
-        self.check_ajax_error(self.post_ajax_binary(url('game:cards:tt-take-card-callback'), data), 'common.wrong_tt_secret', status_code=500)
+        self.check_ajax_error(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data), 'common.wrong_tt_secret', status_code=500)
 
         cards = tt_api.load_cards(self.account.id)
         self.assertEqual(cards, {})
 
     @mock.patch('tt_logic.common.checkers.is_player_participate_in_game', mock.Mock(return_value=False))
     def test_does_not_participate_in_game(self):
-        data = self.create_data(secret=project_settings.TT_SECRET)
-        self.check_ajax_error(self.post_ajax_binary(url('game:cards:tt-take-card-callback'), data), 'common.player_does_not_participate_in_game')
+        data = self.create_data(secret=django_settings.TT_SECRET)
+        self.check_ajax_error(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data), 'common.player_does_not_participate_in_game')
 
         cards = tt_api.load_cards(self.account.id)
         self.assertEqual(cards, {})
@@ -352,8 +325,8 @@ class TakeCardCallbackTests(CardsRequestsTestsBase):
         self.account.prolong_premium(30)
         self.account.save()
 
-        data = self.create_data(secret=project_settings.TT_SECRET)
-        self.check_ajax_ok(self.post_ajax_binary(url('game:cards:tt-take-card-callback'), data))
+        data = self.create_data(secret=django_settings.TT_SECRET)
+        self.check_ajax_ok(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data))
 
         cards = tt_api.load_cards(self.account.id)
         self.assertEqual(len(cards), 1)
@@ -369,8 +342,8 @@ class TakeCardCallbackTests(CardsRequestsTestsBase):
 
         self.check_cards_timer_speed(logic_cards_constants.PREMIUM_PLAYER_SPEED)
 
-        data = self.create_data(secret=project_settings.TT_SECRET)
-        self.check_ajax_ok(self.post_ajax_binary(url('game:cards:tt-take-card-callback'), data))
+        data = self.create_data(secret=django_settings.TT_SECRET)
+        self.check_ajax_ok(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data))
 
         cards = tt_api.load_cards(self.account.id)
         self.assertEqual(len(cards), 1)

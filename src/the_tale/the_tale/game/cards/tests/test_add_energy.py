@@ -1,29 +1,19 @@
 
-import time
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-from the_tale.game import tt_api_energy
-
-from the_tale.game.cards import cards
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-
-from the_tale.game.cards.tests.helpers import CardsTestMixin
+smart_imports.all()
 
 
-class AddBonusEnergyTestMixin(CardsTestMixin):
+class AddBonusEnergyTestMixin(helpers.CardsTestMixin):
     CARD = None
 
     def setUp(self):
         super(AddBonusEnergyTestMixin, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
@@ -33,24 +23,24 @@ class AddBonusEnergyTestMixin(CardsTestMixin):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
             time.sleep(0.1)
 
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
 
-class AddBonusEnergyCommonTests(AddBonusEnergyTestMixin, testcase.TestCase):
+class AddBonusEnergyCommonTests(AddBonusEnergyTestMixin, utils_testcase.TestCase):
     CARD = cards.CARD.ADD_BONUS_ENERGY_COMMON
 
 
-class AddBonusEnergyUncommonTests(AddBonusEnergyTestMixin, testcase.TestCase):
+class AddBonusEnergyUncommonTests(AddBonusEnergyTestMixin, utils_testcase.TestCase):
     CARD = cards.CARD.ADD_BONUS_ENERGY_UNCOMMON
 
 
-class AddBonusEnergyRareTests(AddBonusEnergyTestMixin, testcase.TestCase):
+class AddBonusEnergyRareTests(AddBonusEnergyTestMixin, utils_testcase.TestCase):
     CARD = cards.CARD.ADD_BONUS_ENERGY_RARE
 
 
-class AddBonusEnergyEpicTests(AddBonusEnergyTestMixin, testcase.TestCase):
+class AddBonusEnergyEpicTests(AddBonusEnergyTestMixin, utils_testcase.TestCase):
     CARD = cards.CARD.ADD_BONUS_ENERGY_EPIC
 
 
-class AddBonusEnergyLegendaryTests(AddBonusEnergyTestMixin, testcase.TestCase):
+class AddBonusEnergyLegendaryTests(AddBonusEnergyTestMixin, utils_testcase.TestCase):
     CARD = cards.CARD.ADD_BONUS_ENERGY_LEGENDARY

@@ -1,51 +1,27 @@
-import uuid
-import random
 
-from unittest import mock
+import smart_imports
 
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils import testcase
-
-from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT, PostponedTaskPrototype
-from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
-
-from the_tale.game import names
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.companions import relations as companions_relations
-from the_tale.game.companions import logic as companions_logic
-
-from .. import cards
-from .. import logic
-from .. import tt_api
-from .. import effects
-from .. import objects
-from .. import postponed_tasks
-
-from the_tale.game.places import logic as places_logic
+smart_imports.all()
 
 
-class UseCardTaskTests(testcase.TestCase):
+class UseCardTaskTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(UseCardTaskTests, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.building_1 = places_logic.create_building(person=self.place_1.persons[0], utg_name=names.generator().get_test_name('building-1-name'))
 
-        environment.deinitialize()
-        environment.initialize()
+        amqp_environment.environment.deinitialize()
+        amqp_environment.environment.initialize()
 
-        self.highlevel = environment.workers.highlevel
+        self.highlevel = amqp_environment.environment.workers.highlevel
         self.highlevel.process_initialize(0, 'highlevel')
 
         self.task_data = {'place_id': self.place_1.id,
@@ -53,7 +29,6 @@ class UseCardTaskTests(testcase.TestCase):
                           'building_id': self.building_1.id}
 
         self.companion = companions_logic.create_random_companion_record('test-companion', state=companions_relations.STATE.ENABLED)
-
 
     def test_create(self):
 
@@ -66,7 +41,6 @@ class UseCardTaskTests(testcase.TestCase):
                     task = card.activate(self.hero, data=self.task_data)
 
                 self.assertTrue(task.internal_logic.state.is_UNPROCESSED)
-
 
     def test_serialization(self):
         card = logic.create_card(allow_premium_cards=True, available_for_auction=True)

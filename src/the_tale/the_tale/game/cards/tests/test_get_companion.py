@@ -1,35 +1,18 @@
 
-import random
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-from the_tale.game.companions import relations as companions_relations
-
-from the_tale.game.companions.tests import helpers as companions_helpers
-
-from .. import cards
-from .. import effects
-
-from . import helpers
+smart_imports.all()
 
 
-
-class GetCompanionCreateTests(testcase.TestCase):
+class GetCompanionCreateTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(GetCompanionCreateTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
@@ -39,14 +22,12 @@ class GetCompanionCreateTests(testcase.TestCase):
 
         self.effect = effects.GetCompanion(rarity=companions_relations.RARITY.COMMON)
 
-
     def test__no_disabled_companions(self):
 
         for i in range(100):
             card = self.effect.create_card(type=cards.CARD.GET_COMPANION_COMMON, available_for_auction=True)
             self.assertNotEqual(card.data['companion_id'], self.disabled_companion.id)
             self.assertTrue(companions_storage.companions[card.data['companion_id']].state.is_ENABLED)
-
 
     def test__no_manual_companions(self):
 
@@ -61,16 +42,16 @@ class GetCompanionMixin(helpers.CardsTestMixin):
 
     def setUp(self):
         super(GetCompanionMixin, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
+        for rarity, rarity_abilities in companions_tests_helpers.RARITIES_ABILITIES.items():
             companions_logic.create_random_companion_record('%s companion' % rarity,
                                                             mode=companions_relations.MODE.AUTOMATIC,
                                                             abilities=rarity_abilities,
@@ -85,7 +66,7 @@ class GetCompanionMixin(helpers.CardsTestMixin):
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card=self.card))
 
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(self.hero.companion.record.rarity.card_rarity, self.CARD.rarity)
 
@@ -99,7 +80,7 @@ class GetCompanionMixin(helpers.CardsTestMixin):
         self.hero.set_companion(companions_logic.create_companion(old_companion_record))
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card=self.card))
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(self.hero.companion.record.rarity.card_rarity, self.CARD.rarity)
         self.assertNotEqual(self.hero.companion.record.id, old_companion_record.id)
@@ -115,17 +96,17 @@ class GetCompanionMixin(helpers.CardsTestMixin):
         self.assertFalse(self.CARD.effect.available(self.CARD))
 
 
-class GetCompanionCommonTests(GetCompanionMixin, testcase.TestCase):
+class GetCompanionCommonTests(GetCompanionMixin, utils_testcase.TestCase):
     CARD = cards.CARD.GET_COMPANION_COMMON
 
-class GetCompanionUncommonTests(GetCompanionMixin, testcase.TestCase):
+class GetCompanionUncommonTests(GetCompanionMixin, utils_testcase.TestCase):
     CARD = cards.CARD.GET_COMPANION_UNCOMMON
 
-class GetCompanionRareTests(GetCompanionMixin, testcase.TestCase):
+class GetCompanionRareTests(GetCompanionMixin, utils_testcase.TestCase):
     CARD = cards.CARD.GET_COMPANION_RARE
 
-class GetCompanionEpicTests(GetCompanionMixin, testcase.TestCase):
+class GetCompanionEpicTests(GetCompanionMixin, utils_testcase.TestCase):
     CARD = cards.CARD.GET_COMPANION_EPIC
 
-class GetCompanionLegendaryTests(GetCompanionMixin, testcase.TestCase):
+class GetCompanionLegendaryTests(GetCompanionMixin, utils_testcase.TestCase):
     CARD = cards.CARD.GET_COMPANION_LEGENDARY

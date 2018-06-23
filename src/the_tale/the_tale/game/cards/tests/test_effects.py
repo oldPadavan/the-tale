@@ -1,27 +1,18 @@
 
-import uuid
+import smart_imports
 
-from unittest import mock
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from .. import objects
-from .. import tt_api
-from .. import cards
+smart_imports.all()
 
 
-class EffectsTests(testcase.TestCase):
+class EffectsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -34,15 +25,12 @@ class EffectsTests(testcase.TestCase):
         self.task_data = {'card': {'id': self.card.uid.hex,
                                    'data': self.card.serialize()}}
 
-
     def test_check_hero_conditions__has_card(self):
         self.assertTrue(self.card.effect.check_hero_conditions(self.hero, self.task_data))
-
 
     def test_check_hero_conditions__has_no_card(self):
         tt_api.change_cards(account_id=self.hero.account_id, operation_type='#test', to_remove=[self.card])
         self.assertFalse(self.card.effect.check_hero_conditions(self.hero, self.task_data))
-
 
     def test_hero_actions(self):
         card_2 = objects.Card(cards.CARD.KEEPERS_GOODS_COMMON, uid=uuid.uuid4())
@@ -62,7 +50,6 @@ class EffectsTests(testcase.TestCase):
 
         self.assertIn(card_2.uid, account_cards)
         self.assertNotIn(self.card.uid, account_cards)
-
 
     def test_activate(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_logic_task') as cmd_logic_task:

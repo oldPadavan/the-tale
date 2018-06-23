@@ -1,7 +1,8 @@
 
 
-from . import cards
-from . import relations
+import smart_imports
+
+smart_imports.all()
 
 
 class Card(object):

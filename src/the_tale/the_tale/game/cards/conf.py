@@ -1,8 +1,10 @@
 
-from dext.common.utils.app_settings import app_settings
+import smart_imports
+
+smart_imports.all()
 
 
-settings = app_settings('CARDS',
+settings = app_settings.app_settings('CARDS',
                         GET_API_VERSION='2.0',
                         COMBINE_API_VERSION='2.0',
                         USE_API_VERSION='2.0',

@@ -1,33 +1,10 @@
-import copy
-import uuid
-import random
-import collections
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game import relations as game_relations
-
-from the_tale.game.companions import models as companions_models
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-from the_tale.game.companions import relations as companions_relations
-from the_tale.game.companions.tests import helpers as companions_helpers
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from .. import exceptions
-from .. import relations
-from .. import reactors
-from .. import objects
-from .. import logic
-from .. import cards
+smart_imports.all()
 
 
-class Simple3Tests(testcase.TestCase):
+class Simple3Tests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -68,7 +45,7 @@ class Simple3Tests(testcase.TestCase):
         self.assertEqual(new_card.type, self.next_card_type)
 
 
-class Special3Tests(testcase.TestCase):
+class Special3Tests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -112,7 +89,7 @@ class Special3Tests(testcase.TestCase):
         self.assertEqual(new_card.type, self.next_card_type)
 
 
-class SameHabbits3Test(testcase.TestCase):
+class SameHabbits3Test(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -166,7 +143,7 @@ class SameHabbits3Test(testcase.TestCase):
 
 
 
-class Same2Tests(testcase.TestCase):
+class Same2Tests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -213,7 +190,7 @@ class Same2Tests(testcase.TestCase):
             self.assertEqual(new_card.type, self.own_card_type)
 
 
-class SamePower3Tests(testcase.TestCase):
+class SamePower3Tests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -265,7 +242,7 @@ class SamePower3Tests(testcase.TestCase):
         self.assertEqual(new_card.type, self.next_card_type)
 
 
-class SameEqual2Tests(testcase.TestCase):
+class SameEqual2Tests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()

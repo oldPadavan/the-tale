@@ -1,14 +1,8 @@
 
-from rels import Relation
-from rels import Column
+import smart_imports
 
-from the_tale.game.balance import constants as c
+smart_imports.all()
 
-from the_tale.game.companions import relations as companions_relations
-
-from . import effects
-from . import reactors
-from . import relations
 
 FOR_ALL = relations.AVAILABILITY.FOR_ALL
 FOR_PREMIUMS = relations.AVAILABILITY.FOR_PREMIUMS
@@ -20,14 +14,14 @@ EPIC = relations.RARITY.EPIC
 LEGENDARY = relations.RARITY.LEGENDARY
 
 
-class CARD(Relation):
-    name = Column(primary=True, no_index=True)
-    value = Column(external=True, no_index=True)
-    text = Column()
-    availability = Column(unique=False)
-    rarity = Column(unique=False)
-    effect = Column(unique=False, primary=False, single_type=False)
-    combiners = Column(unique=False, primary=False, single_type=False)
+class CARD(rels.Relation):
+    name = rels.Column(primary=True, no_index=True)
+    value = rels.Column(external=True, no_index=True)
+    text = rels.Column()
+    availability = rels.Column(unique=False)
+    rarity = rels.Column(unique=False)
+    effect = rels.Column(unique=False, primary=False, single_type=False)
+    combiners = rels.Column(unique=False, primary=False, single_type=False)
 
     records = (('LEVEL_UP', 1, 'озарение', FOR_ALL, LEGENDARY, effects.LevelUp(), []),
 

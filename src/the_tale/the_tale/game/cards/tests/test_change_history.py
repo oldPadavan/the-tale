@@ -1,32 +1,22 @@
 
-from tt_logic.beings import relations as beings_relations
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.cards import cards
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-
-from . import helpers
+smart_imports.all()
 
 
 HISTORY_TYPE = cards.CARD.CHANGE_HISTORY.effect.HISTORY_TYPE
 
 
-class ChangeHistory(testcase.TestCase, helpers.CardsTestMixin):
+class ChangeHistory(utils_testcase.TestCase, helpers.CardsTestMixin):
 
     def setUp(self):
         super().setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
@@ -52,10 +42,10 @@ class ChangeHistory(testcase.TestCase, helpers.CardsTestMixin):
                                                                                value=form.get_card_data()['value'],
                                                                                card=card))
 
-        expected_result = (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ())
+        expected_result = (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ())
 
         if not success:
-            expected_result = (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ())
+            expected_result = (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ())
 
         self.assertEqual((result, step, postsave_actions), expected_result)
 

@@ -1,48 +1,7 @@
-import uuid
-import math
-import random
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-from tt_logic.cards import constants as logic_cards_constants
-
-from the_tale.amqp_environment import environment
-
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.accounts import prototypes as accounts_prototypes
-
-from the_tale.game.balance.power import Power
-
-from the_tale.game.places import relations as places_relations
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import logic as places_logic
-
-from the_tale.game.persons import storage as persons_storage
-
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game import relations as game_relations
-from the_tale.game import tt_api_impacts
-from the_tale.game import tt_api_energy
-from the_tale.game import effects
-
-from the_tale.game.artifacts import storage as artifacts_storage
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.companions import relations as companions_relations
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-
-from . import postponed_tasks
-from . import relations
-from . import objects
-from . import tt_api
-from . import forms
+smart_imports.all()
 
 
 class BaseEffect:
@@ -68,7 +27,7 @@ class BaseEffect:
 
         task = PostponedTaskPrototype.create(card_task)
 
-        environment.workers.supervisor.cmd_logic_task(hero.account_id, task.id)
+        amqp_environment.environment.workers.supervisor.cmd_logic_task(hero.account_id, task.id)
 
         return task
 
@@ -528,9 +487,9 @@ class GetArtifact(BaseEffect):
     def get_form(self, card, hero, data):
         return forms.Empty(data)
 
-    class ARTIFACT_TYPE_CHOICES(DjangoEnum):
-        rarity = Column(unique=False, single_type=False)
-        description = Column()
+    class ARTIFACT_TYPE_CHOICES(rels_django.DjangoEnum):
+        rarity = rels.Column(unique=False, single_type=False)
+        description = rels.Column()
 
         records = (('LOOT', 0, 'лут', artifacts_relations.RARITY.NORMAL, 'Герой получает случайный бесполезный предмет.'),
                    ('COMMON', 1, 'обычные', artifacts_relations.RARITY.NORMAL, 'Герой получает случайный артефакт лучше экипированного, близкий архетипу героя.'),
@@ -640,7 +599,7 @@ class GiveStability(ModificatorBase):
         elif task.step.is_HIGHLEVEL:
             place = places_storage.places[place_id]
 
-            place.effects.add(effects.Effect(name='Хранитель {}'.format(accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).nick),
+            place.effects.add(game_effects.Effect(name='Хранитель {}'.format(accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).nick),
                                              attribute=places_relations.ATTRIBUTE.STABILITY,
                                              value=self.modificator,
                                              delta=place.attrs.stability_renewing_speed))
@@ -885,7 +844,7 @@ class SharpRandomArtifact(BaseEffect):
         artifact = random.choice(list(task.hero.equipment.values()))
 
         distribution = task.hero.preferences.archetype.power_distribution
-        min_power, max_power = Power.artifact_power_interval(distribution, task.hero.level)
+        min_power, max_power = power.Power.artifact_power_interval(distribution, task.hero.level)
 
         artifact.sharp(distribution=distribution,
                        max_power=max_power,
@@ -906,7 +865,7 @@ class SharpAllArtifacts(BaseEffect):
 
         for artifact in list(task.hero.equipment.values()):
             distribution = task.hero.preferences.archetype.power_distribution
-            min_power, max_power = Power.artifact_power_interval(distribution, task.hero.level)
+            min_power, max_power = power.Power.artifact_power_interval(distribution, task.hero.level)
 
             artifact.sharp(distribution=distribution,
                            max_power=max_power,
@@ -1153,9 +1112,9 @@ class CreateClan(BaseEffect):
 class ChangeHistory(BaseEffect):
     __slots__ = ()
 
-    class HISTORY_TYPE(DjangoEnum):
-        choices = Column(single_type=False)
-        form_class = Column(single_type=False)
+    class HISTORY_TYPE(rels_django.DjangoEnum):
+        choices = rels.Column(single_type=False)
+        form_class = rels.Column(single_type=False)
 
         records = (('UPBRINGING', 0, 'воспитание', beings_relations.UPBRINGING, forms.Upbringing),
                    ('DEATH_AGE', 1, 'возраст смерти', beings_relations.AGE, forms.DeathAge),

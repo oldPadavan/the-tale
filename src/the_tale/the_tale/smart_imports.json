@@ -65,6 +65,7 @@
                       "dext_old_views": {"module": "dext.views"},
                       "dext_discovering": {"module": "dext.common.utils.discovering"},
 
+                      "django_decorators": {"module": "django.views.decorators"},
                       "django_dispatch": {"module": "django.dispatch"},
                       "django_models": {"module": "django.db.models"},
                       "django_admin": {"module": "django.contrib.admin"},
@@ -112,8 +113,11 @@
 
                       "beings_relations": {"module": "tt_logic.beings.relations"},
                       "logic_checkers": {"module": "tt_logic.common.checkers"},
+                      "logic_cards_constants": {"module": "tt_logic.cards.constants"},
 
                       "diary_pb2": {"module": "tt_protocol.protocol.diary_pb2"},
+                      "storage_pb2": {"module": "tt_protocol.protocol.storage_pb2"},
+                      "timers_pb2": {"module": "tt_protocol.protocol.timers_pb2"},
 
                       "FakeActor": {"module": "the_tale.game.actions.fake",
                                     "attribute": "FakeActor"},
@@ -143,7 +147,8 @@
                       "abilities_tests_helpers": {"module": "the_tale.game.abilities.tests.helpers"},
                       "pvp_tests_helpers": {"module": "the_tale.game.pvp.tests.helpers"},
                       "quests_tests_helpers": {"module": "the_tale.game.quests.tests.helpers"},
-                      "linguistics_tests_helpers": {"module": "the_tale.linguistics.tests.helpers"}
+                      "linguistics_tests_helpers": {"module": "the_tale.linguistics.tests.helpers"},
+                      "companions_tests_helpers": {"module": "the_tale.game.companions.tests.helpers"}
                   }
               },
               "rule_stdlib": {}}

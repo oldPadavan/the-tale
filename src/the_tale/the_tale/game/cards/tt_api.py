@@ -1,16 +1,7 @@
-import uuid
 
-from django.conf import settings as project_settings
+import smart_imports
 
-from dext.common.utils import s11n
-
-from tt_protocol.protocol import storage_pb2
-
-from the_tale.common.utils import tt_api
-
-from . import conf
-from . import objects
-from . import relations
+smart_imports.all()
 
 
 def change_cards(account_id, operation_type, to_add=(), to_remove=(), storage=relations.STORAGE.FAST):
@@ -30,7 +21,7 @@ def change_cards(account_id, operation_type, to_add=(), to_remove=(), storage=re
                                                                                    data=s11n.to_json(card.serialize()),
                                                                                    operation_type=operation_type)))
 
-    tt_api.sync_request(url=conf.settings.TT_STORAGE_APPLY_URL,
+    utils_tt_api.sync_request(url=conf.settings.TT_STORAGE_APPLY_URL,
                         data=storage_pb2.ApplyRequest(operations=operations),
                         AnswerType=storage_pb2.ApplyResponse)
 
@@ -45,7 +36,7 @@ def change_cards_owner(old_owner_id, new_owner_id, operation_type, new_storage, 
                                                                                               new_storage_id=new_storage.value,
                                                                                               operation_type=operation_type)))
 
-    tt_api.sync_request(url=conf.settings.TT_STORAGE_APPLY_URL,
+    utils_tt_api.sync_request(url=conf.settings.TT_STORAGE_APPLY_URL,
                         data=storage_pb2.ApplyRequest(operations=operations),
                         AnswerType=storage_pb2.ApplyResponse)
 
@@ -60,13 +51,13 @@ def change_cards_storage(account_id, operation_type, cards, old_storage, new_sto
                                                                                                   new_storage_id=new_storage.value,
                                                                                                   operation_type=operation_type)))
 
-    tt_api.sync_request(url=conf.settings.TT_STORAGE_APPLY_URL,
+    utils_tt_api.sync_request(url=conf.settings.TT_STORAGE_APPLY_URL,
                         data=storage_pb2.ApplyRequest(operations=operations),
                         AnswerType=storage_pb2.ApplyResponse)
 
 
 def load_cards(account_id):
-    answer = tt_api.sync_request(url=conf.settings.TT_STORAGE_GET_ITEMS_URL,
+    answer = utils_tt_api.sync_request(url=conf.settings.TT_STORAGE_GET_ITEMS_URL,
                                  data=storage_pb2.GetItemsRequest(owner_id=account_id),
                                  AnswerType=storage_pb2.GetItemsResponse)
 
@@ -82,16 +73,16 @@ def load_cards(account_id):
 
 
 def has_cards(account_id, cards_ids):
-    answer = tt_api.sync_request(url=conf.settings.TT_STORAGE_HAS_ITEMS_URL,
+    answer = utils_tt_api.sync_request(url=conf.settings.TT_STORAGE_HAS_ITEMS_URL,
                                  data=storage_pb2.HasItemsRequest(owner_id=account_id, items_ids=[id.hex for id in cards_ids]),
                                  AnswerType=storage_pb2.HasItemsResponse)
     return answer.has
 
 
 def debug_clear_service():
-    if not project_settings.TESTS_RUNNING:
+    if not django_settings.TESTS_RUNNING:
         return
 
-    tt_api.sync_request(url=conf.settings.TT_STORAGE_DEBUG_CLEAR_SERVICE_URL,
+    utils_tt_api.sync_request(url=conf.settings.TT_STORAGE_DEBUG_CLEAR_SERVICE_URL,
                         data=storage_pb2.DebugClearServiceRequest(),
                         AnswerType=storage_pb2.DebugClearServiceResponse)

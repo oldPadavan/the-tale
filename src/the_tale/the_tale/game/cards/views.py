@@ -1,44 +1,7 @@
 
-import uuid
+import smart_imports
 
-from rels.django import DjangoEnum
-
-from django.views.decorators import csrf
-from django.conf import settings as project_settings
-
-from dext.common.utils import views as dext_views
-from dext.common.utils.urls import UrlBuilder, url
-
-from tt_protocol.protocol import timers_pb2
-
-from tt_logic.common import checkers as logic_checkers
-from tt_logic.cards import constants as logic_cards_constants
-
-from the_tale import amqp_environment
-
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.common.utils import api
-from the_tale.common.utils import list_filter
-from the_tale.common.utils import views as utils_views
-from the_tale.common.utils import tt_api as common_tt_api
-from the_tale.common.utils import exceptions as utils_exceptions
-
-from the_tale.accounts import views as accounts_views
-from the_tale.accounts import tt_api as accounts_tt_api
-from the_tale.accounts import prototypes as accounts_prototypes
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.heroes import views as heroes_views
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes import postponed_tasks as heroes_postponed_tasks
-
-from . import relations
-from . import tt_api
-from . import logic
-from . import cards
-from . import conf
+smart_imports.all()
 
 
 ########################################
@@ -105,20 +68,20 @@ technical_resource = dext_views.Resource(name='cards')
 ########################################
 
 
-class INDEX_ORDER(DjangoEnum):
+class INDEX_ORDER(rels_django.DjangoEnum):
     records = (('RARITY', 0, 'по редкости'),
                ('NAME', 1, 'по имени'))
 
-CARDS_FILTER = [list_filter.reset_element(),
-                list_filter.choice_element('редкость:', attribute='rarity', choices=[(None, 'все')] + list(relations.RARITY.select('value', 'text'))),
-                list_filter.choice_element('доступность:', attribute='availability', choices=[(None, 'все')] + list(relations.AVAILABILITY.select('value', 'text'))),
-                list_filter.choice_element('сортировка:',
+CARDS_FILTER = [utils_list_filter.reset_element(),
+                utils_list_filter.choice_element('редкость:', attribute='rarity', choices=[(None, 'все')] + list(relations.RARITY.select('value', 'text'))),
+                utils_list_filter.choice_element('доступность:', attribute='availability', choices=[(None, 'все')] + list(relations.AVAILABILITY.select('value', 'text'))),
+                utils_list_filter.choice_element('сортировка:',
                                            attribute='order_by',
                                            choices=list(INDEX_ORDER.select('value', 'text')),
                                            default_value=INDEX_ORDER.RARITY.value)]
 
 
-class CardsFilter(list_filter.ListFilter):
+class CardsFilter(utils_list_filter.ListFilter):
     ELEMENTS = CARDS_FILTER
 
 ########################################
@@ -154,7 +117,7 @@ def use_dialog(context):
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardProcessor()
-@api.Processor(versions=(conf.settings.USE_API_VERSION, ))
+@utils_api.Processor(versions=(conf.settings.USE_API_VERSION, ))
 @resource('api', 'use', name='api-use', method='POST')
 def api_use(context):
     form = context.account_card.get_form(data=context.django_request.POST, hero=context.account_hero)
@@ -168,7 +131,7 @@ def api_use(context):
 
 
 @accounts_views.LoginRequiredProcessor()
-@api.Processor(versions=(conf.settings.RECEIVE_API_VERSION,))
+@utils_api.Processor(versions=(conf.settings.RECEIVE_API_VERSION,))
 @resource('api', 'receive', name='api-receive-cards', method='post')
 def api_receive(context):
     cards = tt_api.load_cards(account_id=context.account.id)
@@ -187,7 +150,7 @@ def api_receive(context):
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardsProcessor()
-@api.Processor(versions=(conf.settings.COMBINE_API_VERSION, ))
+@utils_api.Processor(versions=(conf.settings.COMBINE_API_VERSION, ))
 @resource('api', 'combine', name='api-combine', method='post')
 def api_combine(context):
     card, result = logic.get_combined_card(allow_premium_cards=context.account.is_premium, combined_cards=context.cards)
@@ -230,13 +193,13 @@ def api_combine(context):
 
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
-@api.Processor(versions=(conf.settings.GET_CARDS_API_VERSION, ))
+@utils_api.Processor(versions=(conf.settings.GET_CARDS_API_VERSION, ))
 @resource('api', 'get-cards', name='api-get-cards', method='get')
 def api_get_cards(context):
 
     timers = accounts_tt_api.get_owner_timers(context.account.id)
 
-    if not timers and (project_settings.RUNSERVER_RUNNING or project_settings.TESTS_RUNNING):
+    if not timers and (django_settings.RUNSERVER_RUNNING or django_settings.TESTS_RUNNING):
         accounts_tt_api.create_cards_timer(account_id=context.account.id)
         timers = accounts_tt_api.get_owner_timers(context.account.id)
 
@@ -255,7 +218,7 @@ def api_get_cards(context):
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardsProcessor()
-@api.Processor(versions=(conf.settings.MOVE_TO_STORAGE_API_VERSION, ))
+@utils_api.Processor(versions=(conf.settings.MOVE_TO_STORAGE_API_VERSION, ))
 @resource('api', 'move-to-storage', name='api-move-to-storage', method='post')
 def api_move_to_storage(context):
     tt_api.change_cards_storage(account_id=context.account.id,
@@ -270,7 +233,7 @@ def api_move_to_storage(context):
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardsProcessor()
-@api.Processor(versions=(conf.settings.MOVE_TO_HAND_API_VERSION, ))
+@utils_api.Processor(versions=(conf.settings.MOVE_TO_HAND_API_VERSION, ))
 @resource('api', 'move-to-hand', name='api-move-to-hand', method='post')
 def api_move_to_hand(context):
     tt_api.change_cards_storage(account_id=context.account.id,
@@ -309,7 +272,7 @@ def index(context):
     elif context.cards_order_by.is_NAME:
         all_cards = sorted(all_cards, key=lambda c: (c.text, c.rarity.value))
 
-    url_builder = UrlBuilder(url('guide:cards:'), arguments={'rarity': context.cards_rarity.value if context.cards_rarity else None,
+    url_builder = dext_urls.UrlBuilder(dext_urls.url('guide:cards:'), arguments={'rarity': context.cards_rarity.value if context.cards_rarity else None,
                                                              'availability': context.cards_availability.value if context.cards_availability else None,
                                                              'order_by': context.cards_order_by.value})
 
@@ -324,10 +287,10 @@ def index(context):
                                     'resource': context.resource})
 
 
-@common_tt_api.RequestProcessor(request_class=timers_pb2.CallbackBody)
-@common_tt_api.SecretProcessor(secret=project_settings.TT_SECRET)
+@utils_tt_api.RequestProcessor(request_class=timers_pb2.CallbackBody)
+@utils_tt_api.SecretProcessor(secret=django_settings.TT_SECRET)
 @technical_resource('tt', 'take-card-callback', name='tt-take-card-callback', method='post')
-@csrf.csrf_exempt
+@django_decorators.csrf.csrf_exempt
 def take_card_callback(context):
 
     account = accounts_prototypes.AccountPrototype.get_by_id(context.tt_request.timer.owner_id)

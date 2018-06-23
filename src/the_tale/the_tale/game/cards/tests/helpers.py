@@ -1,10 +1,8 @@
-# coding: utf-8
 
-from the_tale.game.tests.helpers import ComplexChangeTaskMixin
+import smart_imports
 
-from the_tale.game.cards.postponed_tasks import UseCardTask
-
+smart_imports.all()
 
 
-class CardsTestMixin(ComplexChangeTaskMixin):
-    LOGIC = UseCardTask
+class CardsTestMixin(game_tests_helpers.ComplexChangeTaskMixin):
+    LOGIC = postponed_tasks.UseCardTask
