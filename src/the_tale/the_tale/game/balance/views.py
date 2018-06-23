@@ -1,22 +1,16 @@
-# coding: utf-8
-import math
 
-from dext.views import handler
+import smart_imports
 
-from the_tale.common.utils.decorators import staff_required
-from the_tale.common.utils.resources import Resource
+smart_imports.all()
 
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance.power import Power, PowerDistribution
 
-class BalanceResource(Resource):
+class BalanceResource(utils_resources.Resource):
 
     def __init__(self, request, *args, **kwargs):
         super(BalanceResource, self).__init__(request, *args, **kwargs)
 
-    @staff_required()
-    @handler('', method='get')
+    @utils_decorators.staff_required()
+    @dext_old_views.handler('', method='get')
     def show_balance(self): # pylint: disable=R0914
         tmp_time = ['начало', '8 часов', 'день', 'неделя', 'месяц', '3 месяца', '6 месяцев', '1 год', '2 года', '3 года', '4 года', '5 лет', '6 лет']
         tmp_times = [0, 8, 24, 24*7, 24*30, 24*30*3, 24*30*6, 24*30*12, 24*30*12*2, 24*30*12*3, 24*30*12*4, 24*30*12*5, 24*30*12*6]
@@ -32,7 +26,7 @@ class BalanceResource(Resource):
         tmp_quests_to_level = list(map(math.ceil, (exp/float(exp_for_quest) for exp in tmp_exp_to_level)))
         tmp_quests_total = list(map(math.ceil, (exp/float(exp_for_quest) for exp in tmp_exp_total)))
 
-        dstr = PowerDistribution(0.5, 0.5)
+        dstr = power.PowerDistribution(0.5, 0.5)
 
         tmp_hp = list(map(f.hp_on_lvl, tmp_lvls))
         tmp_turns = list(map(f.turns_on_lvl, tmp_lvls))
@@ -40,11 +34,11 @@ class BalanceResource(Resource):
         tmp_expected_damage_to_hero_per_hit = list(map(f.expected_damage_to_hero_per_hit, tmp_lvls))
         tmp_expected_damage_to_hero_per_hit_interval = [ (int(round(dmg*(1-c.DAMAGE_DELTA))), int(round(dmg*(1+c.DAMAGE_DELTA)))) for dmg in tmp_expected_damage_to_hero_per_hit]
         tmp_mob_hp = list(map(f.mob_hp_to_lvl, tmp_lvls))
-        tmp_power = [Power.power_to_level(dstr, lvl) for lvl in tmp_lvls]
+        tmp_power = [power.Power.power_to_level(dstr, lvl) for lvl in tmp_lvls]
         tmp_expected_damage_to_mob_per_hit = list(map(f.expected_damage_to_mob_per_hit, tmp_lvls))
         tmp_real_damage_to_mob_per_hit = [p.damage().total for p in tmp_power]
         tmp_real_damage_to_mob_per_hit_interval = [ (int(round(dmg*(1-c.DAMAGE_DELTA))), int(round(dmg*(1+c.DAMAGE_DELTA)))) for dmg in tmp_real_damage_to_mob_per_hit]
-        tmp_power_per_slot = [Power.power_to_artifact(dstr, lvl) for lvl in tmp_lvls]
+        tmp_power_per_slot = [power.Power.power_to_artifact(dstr, lvl) for lvl in tmp_lvls]
         tmp_battles_at_lvl = list(map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.time_on_lvl, tmp_lvls)]))
         tmp_total_battles = list(map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.total_time_for_lvl, tmp_lvls)]))
         tmp_artifacts_per_battle = [c.ARTIFACTS_PER_BATTLE]* len(tmp_lvls)

@@ -1,7 +1,8 @@
 
-import math
+import smart_imports
 
-from the_tale.game.balance import helpers as h
+smart_imports.all()
+
 
 TIME_TO_LVL_DELTA = float(7) # разница во времени получения двух соседних уровней
 TIME_TO_LVL_MULTIPLIER = float(1.02) # множитель опыта, возводится в степень уровня
@@ -306,7 +307,7 @@ HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER = float(1.5) # бонус к начисл
 KILL_BEFORE_BATTLE_PROBABILITY = float(0.05)  # вероятность убить мобы в начале боя
 PICKED_UP_IN_ROAD_TELEPORT_LENGTH = ANGEL_HELP_TELEPORT_DISTANCE
 # бонус к скорости передвижения, эквивалентный вероятности убить моба
-PICKED_UP_IN_ROAD_SPEED_BONUS = h.speed_from_safety(BATTLES_PER_TURN*KILL_BEFORE_BATTLE_PROBABILITY, BATTLES_PER_TURN)
+PICKED_UP_IN_ROAD_SPEED_BONUS = helpers.speed_from_safety(BATTLES_PER_TURN*KILL_BEFORE_BATTLE_PROBABILITY, BATTLES_PER_TURN)
 PICKED_UP_IN_ROAD_PROBABILITY = PICKED_UP_IN_ROAD_SPEED_BONUS / PICKED_UP_IN_ROAD_TELEPORT_LENGTH
 
 HABIT_QUEST_PRIORITY_MODIFIER = float(1) # модификатор приоритета выбора заданий от предпочтений
@@ -438,7 +439,7 @@ PLACE_GOODS_FROM_BEST_PERSON = int(PLACE_GOODS_BONUS / 2)
 
 # исходим из того, что в первую очередь надо балансировать вероятность нападения монстров как самый важный параметр
 PLACE_SAFETY_FROM_BEST_PERSON = float(0.025)
-PLACE_TRANSPORT_FROM_BEST_PERSON = h.speed_from_safety(PLACE_SAFETY_FROM_BEST_PERSON, BATTLES_PER_TURN)
+PLACE_TRANSPORT_FROM_BEST_PERSON = helpers.speed_from_safety(PLACE_SAFETY_FROM_BEST_PERSON, BATTLES_PER_TURN)
 
 # хотя на опыт свобода и не влияет, но на город оказывает такое-же влияние как и транспорт
 PLACE_FREEDOM_FROM_BEST_PERSON = PLACE_TRANSPORT_FROM_BEST_PERSON
@@ -455,7 +456,7 @@ PLACE_STABILITY_RECOVER_SPEED = float(PLACE_STABILITY_UNIT / (7*24)) # стаб�
 
 PLACE_STABILITY_MAX_PRODUCTION_PENALTY = float(-PLACE_GOODS_BONUS * 2)
 PLACE_STABILITY_MAX_SAFETY_PENALTY = float(-0.25)
-PLACE_STABILITY_MAX_TRANSPORT_PENALTY = h.speed_from_safety(PLACE_STABILITY_MAX_SAFETY_PENALTY, BATTLES_PER_TURN)
+PLACE_STABILITY_MAX_TRANSPORT_PENALTY = helpers.speed_from_safety(PLACE_STABILITY_MAX_SAFETY_PENALTY, BATTLES_PER_TURN)
 PLACE_STABILITY_MAX_FREEDOM_PENALTY = -PLACE_STABILITY_MAX_TRANSPORT_PENALTY
 PLACE_STABILITY_MAX_CULTURE_PENALTY = -1.0
 

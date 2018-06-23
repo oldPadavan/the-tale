@@ -1,8 +1,7 @@
-# coding: utf-8
-import math
-import random
 
-from the_tale.game.balance import constants as c
+import smart_imports
+
+smart_imports.all()
 
 # время изменяется в часах, если размерность не указана отдельно
 # при всех вычислениях предполагается, что получаемые значения - это либо поталок (которого героя может достигнуть при активной игре пользователя) либо среднее

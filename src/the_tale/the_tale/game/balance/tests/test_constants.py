@@ -1,12 +1,13 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.balance import constants as c
+smart_imports.all()
+
 
 E = 0.00001
 
 
-class ConstantsTest(testcase.TestCase):
+class ConstantsTest(utils_testcase.TestCase):
 
     def test_constants_values(self): # pylint: disable=R0915
 

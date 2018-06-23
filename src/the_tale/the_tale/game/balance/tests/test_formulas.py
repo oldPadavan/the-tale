@@ -1,12 +1,13 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.balance import formulas as f, constants as c
+smart_imports.all()
+
 
 E = 0.00001
 
 
-class FormulasTest(testcase.TestCase):
+class FormulasTest(utils_testcase.TestCase):
 
     LVLS = [1, 2, 3, 4, 5, 7, 11, 17, 19, 25, 30, 40, 60, 71, 82, 99, 101]
 
@@ -57,7 +58,7 @@ class FormulasTest(testcase.TestCase):
 
 
 # if one of this tests broken, we MUST review appropriate achievements' barriers
-class AchievementsBarriers(testcase.TestCase):
+class AchievementsBarriers(utils_testcase.TestCase):
 
     def money_after_months(self, months):
         return f.total_gold_at_lvl(f.lvl_after_time(months*30*24))

@@ -1,9 +1,8 @@
-# coding: utf-
-import collections
-import random
 
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
+import smart_imports
+
+smart_imports.all()
+
 
 PowerDistribution = collections.namedtuple('PowerDistribution', ('physic', 'magic'))
 
