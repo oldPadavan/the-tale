@@ -1,16 +1,7 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
 
-from the_tale.game import relations as game_relations
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes.habilities import nonbattle as nonbatle_abilities
-from the_tale.game.heroes.habilities import battle as battle_abilities
-
-from the_tale.game.companions.abilities import relations
+smart_imports.all()
 
 
 class Base(object):
@@ -400,8 +391,8 @@ def quest_money_reward(name, value, text, description, rarity_delta, border_left
 
 
 def huckster(name, value, text, description, rarity_delta, work_when_dead=False, can_be_freezed=True):
-    effect = Huckster(buy_bonus_left=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2 / 5, buy_bonus_right=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2,
-                      sell_bonus_left=nonbatle_abilities.HUCKSTER._sell_bonus(5) / 2 / 5, sell_bonus_right=nonbatle_abilities.HUCKSTER._sell_bonus(5) / 2)
+    effect = Huckster(buy_bonus_left=nonbattle_abilities.HUCKSTER.BUY_BONUS[-1] / 2 / 5, buy_bonus_right=nonbattle_abilities.HUCKSTER.BUY_BONUS[-1] / 2,
+                      sell_bonus_left=nonbattle_abilities.HUCKSTER._sell_bonus(5) / 2 / 5, sell_bonus_right=nonbattle_abilities.HUCKSTER._sell_bonus(5) / 2)
     return (name,
             value,
             text,
@@ -412,12 +403,12 @@ def huckster(name, value, text, description, rarity_delta, work_when_dead=False,
             can_be_freezed)
 
 
-class ABILITIES(DjangoEnum):
-    description = Column()
-    effect = Column(single_type=False)
-    rarity_delta = Column(unique=False)
-    work_when_dead = Column(unique=False)
-    can_be_freezed = Column(unique=False)
+class ABILITIES(rels_django.DjangoEnum):
+    description = rels.Column()
+    effect = rels.Column(single_type=False)
+    rarity_delta = rels.Column(unique=False)
+    work_when_dead = rels.Column(unique=False)
+    can_be_freezed = rels.Column(unique=False)
 
     records = (
         ('OBSTINATE', 0, 'строптивый', 'слаженность растёт очень медленно', CoherenceSpeed(0.6), RARITY_LOWER, False, True),

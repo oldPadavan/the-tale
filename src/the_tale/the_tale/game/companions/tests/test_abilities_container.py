@@ -1,27 +1,25 @@
-# coding: utf-8
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.companions.abilities import exceptions as abilities_exceptions
-from the_tale.game.companions.abilities import container as abilities_container
-from the_tale.game.companions.abilities import effects
+smart_imports.all()
 
 
-class ContainerTests(testcase.TestCase):
+effects = companions_abilities_effects
+
+
+class ContainerTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(ContainerTests, self).setUp()
 
-        self.container_1 = abilities_container.Container(common=(effects.ABILITIES.PEACEFUL, effects.ABILITIES.SNEAKY),
+        self.container_1 = companions_abilities_container.Container(common=(effects.ABILITIES.PEACEFUL, effects.ABILITIES.SNEAKY),
                                                          start=frozenset(),
                                                          coherence=effects.ABILITIES.MANAGING,
                                                          honor=None,
                                                          peacefulness=effects.ABILITIES.AGGRESSIVE)
 
 
-        self.container_2 = abilities_container.Container(common=(effects.ABILITIES.PEACEFUL, effects.ABILITIES.HONEST, effects.ABILITIES.CANNY),
+        self.container_2 = companions_abilities_container.Container(common=(effects.ABILITIES.PEACEFUL, effects.ABILITIES.HONEST, effects.ABILITIES.CANNY),
                                                          start=frozenset((effects.ABILITIES.BONA_FIDE, effects.ABILITIES.PEACEFUL)),
                                                          coherence=None,
                                                          honor=effects.ABILITIES.SNEAKY,
@@ -42,8 +40,8 @@ class ContainerTests(testcase.TestCase):
 
 
     def test_serialization(self):
-        self.assertEqual(self.container_1.serialize(), abilities_container.Container.deserialize(self.container_1.serialize()).serialize())
-        self.assertEqual(self.container_2.serialize(), abilities_container.Container.deserialize(self.container_2.serialize()).serialize())
+        self.assertEqual(self.container_1.serialize(), companions_abilities_container.Container.deserialize(self.container_1.serialize()).serialize())
+        self.assertEqual(self.container_2.serialize(), companions_abilities_container.Container.deserialize(self.container_2.serialize()).serialize())
 
     def test_has_duplicates(self):
         self.assertFalse(self.container_1.has_duplicates())
@@ -53,7 +51,7 @@ class ContainerTests(testcase.TestCase):
         self.assertTrue(self.container_1.has_same_effects())
         self.assertTrue(self.container_2.has_same_effects())
 
-        container_3 = abilities_container.Container(common=(effects.ABILITIES.OBSTINATE, effects.ABILITIES.PEACEFUL),
+        container_3 = companions_abilities_container.Container(common=(effects.ABILITIES.OBSTINATE, effects.ABILITIES.PEACEFUL),
                                                     start=frozenset((effects.ABILITIES.CANNY,)),
                                                     coherence=None,
                                                     honor=None,
@@ -62,7 +60,7 @@ class ContainerTests(testcase.TestCase):
         self.assertFalse(container_3.has_same_effects())
 
     def test_not_ordered(self):
-        self.assertRaises(abilities_exceptions.NotOrderedUIDSError, abilities_container.Container,
+        self.assertRaises(companions_abilities_exceptions.NotOrderedUIDSError, companions_abilities_container.Container,
                           common=set((effects.ABILITIES.PEACEFUL, effects.ABILITIES.HONEST, effects.ABILITIES.CANNY)))
 
 

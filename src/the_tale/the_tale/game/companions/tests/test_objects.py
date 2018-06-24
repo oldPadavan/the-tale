@@ -1,47 +1,19 @@
-import random
 
-from unittest import mock
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game import names
-
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance import constants as c
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes.habilities import companions as heroes_companions_abilities
-
-from .. import logic
-from .. import objects
-from .. import relations
-from .. import exceptions
-
-from ..abilities import container as abilities_container
-from ..abilities import effects as companions_effects
+smart_imports.all()
 
 
-class CompanionTests(testcase.TestCase):
+class CompanionTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(CompanionTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -52,7 +24,7 @@ class CompanionTests(testcase.TestCase):
                                                               dedication=relations.DEDICATION.random(),
                                                               archetype=game_relations.ARCHETYPE.random(),
                                                               mode=relations.MODE.random(),
-                                                              abilities=abilities_container.Container(),
+                                                              abilities=companions_abilities_container.Container(),
                                                               communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
                                                               communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
                                                               communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
@@ -217,11 +189,11 @@ class CompanionTests(testcase.TestCase):
 
     def test_modify_attribute(self):
         checked_abilities = [ability
-                             for ability in heroes_companions_abilities.ABILITIES.values()
-                             if issubclass(ability, heroes_companions_abilities._CompanionAbilityModifier)]
+                             for ability in companions_abilities.ABILITIES.values()
+                             if issubclass(ability, companions_abilities._CompanionAbilityModifier)]
 
         for ability_class in checked_abilities:
-            for companion_ability in companions_effects.ABILITIES.records:
+            for companion_ability in companions_abilities_effects.ABILITIES.records:
                 if ability_class.EFFECT_TYPE != companion_ability.effect.TYPE.metatype:
                     continue
 
@@ -234,7 +206,7 @@ class CompanionTests(testcase.TestCase):
                 self.hero.abilities.reset()
                 self.hero.reset_accessors_cache()
 
-                self.companion_record.abilities = abilities_container.Container(start=(companion_ability,))
+                self.companion_record.abilities = companions_abilities_container.Container(start=(companion_ability,))
 
                 with self.check_changed(lambda: self.companion.modify_attribute(companion_ability.effect.MODIFIER, companion_ability.effect.MODIFIER.default())):
                     self.hero.abilities.add(ability_class.get_id(), random.randint(1, ability_class.MAX_LEVEL))

@@ -1,12 +1,7 @@
-# coding: utf-8
 
-from the_tale.game.companions.abilities import exceptions
+import smart_imports
 
-from the_tale.common.utils.decorators import lazy_property
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.companions.abilities import effects
+smart_imports.all()
 
 
 class Container(object):
@@ -25,7 +20,7 @@ class Container(object):
         self.honor = honor
         self.peacefulness = peacefulness
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def start_abilities(self):
         abilities = []
 
@@ -43,7 +38,7 @@ class Container(object):
 
         return abilities
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def coherence_abilities(self):
         abilities = []
 
@@ -54,7 +49,7 @@ class Container(object):
 
         return abilities
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def all_abilities(self):
         abilities = [(0, start_ability) for start_ability in self.start_abilities]
         abilities.extend(self.coherence_abilities)

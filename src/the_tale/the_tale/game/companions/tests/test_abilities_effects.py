@@ -1,48 +1,24 @@
 
-import random
+import smart_imports
 
-from unittest import mock
-
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game import names
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.mobs import storage as mobs_storage
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.companions import logic
-from the_tale.game.companions import relations
-
-from the_tale.game.companions.abilities import effects
-from the_tale.game.companions.abilities import container as abilities_container
-
-from the_tale.game.heroes.relations import MODIFIERS
+smart_imports.all()
 
 
-class BaseEffectsTests(testcase.TestCase):
+effects = companions_abilities_effects
+
+MODIFIERS = heroes_relations.MODIFIERS
+
+
+class BaseEffectsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(BaseEffectsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -53,7 +29,7 @@ class BaseEffectsTests(testcase.TestCase):
                                                               dedication=relations.DEDICATION.random(),
                                                               archetype=game_relations.ARCHETYPE.random(),
                                                               mode=relations.MODE.random(),
-                                                              abilities=abilities_container.Container(),
+                                                              abilities=companions_abilities_container.Container(),
                                                               communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
                                                               communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
                                                               communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
@@ -71,7 +47,7 @@ class BaseEffectsTests(testcase.TestCase):
         self.hero.set_companion(logic.create_companion(self.companion_record))
 
     def apply_ability(self, ability):
-        container = abilities_container.Container(common=(),
+        container = companions_abilities_container.Container(common=(),
                                                   start=frozenset((ability,)),
                                                   coherence=None,
                                                   honor=None,

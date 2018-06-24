@@ -1,49 +1,22 @@
 
-from dext.common.utils.urls import url
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.common.utils import testcase
-from the_tale.common.utils.permissions import sync_group
-
-from the_tale.accounts import logic as accounts_logic
-
-from the_tale.linguistics.tests import helpers as linguistics_helpers
-
-from the_tale.game import names
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from .. import logic
-from .. import models
-from .. import storage
-from .. import relations
-from .. import meta_relations
-
-from . import helpers
+smart_imports.all()
 
 
-class RequestsTestsBase(testcase.TestCase):
+class RequestsTestsBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(RequestsTestsBase, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
         self.account_3 = self.accounts_factory.create_account()
 
-        # self.request_login('test_user_1@test.com')
-
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
-        group_moderate = sync_group('moderate companions', ['companions.moderate_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
+        group_moderate = utils_permissions.sync_group('moderate companions', ['companions.moderate_companionrecord'])
 
         group_edit.user_set.add(self.account_2._model)
         group_edit.user_set.add(self.account_3._model)
@@ -54,8 +27,8 @@ class IndexRequestsTests(RequestsTestsBase):
 
     def setUp(self):
         super(IndexRequestsTests, self).setUp()
-        self.requested_url = url('game:companions:')
-        self.requested_url_disabled = url('game:companions:', state=relations.STATE.DISABLED.value)
+        self.requested_url = dext_urls.url('game:companions:')
+        self.requested_url_disabled = dext_urls.url('game:companions:', state=relations.STATE.DISABLED.value)
 
         self.companion_1 = logic.create_companion_record(utg_name=names.generator().get_test_name('c-1'),
                                                          description='companion-description',
@@ -166,12 +139,12 @@ class NewRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(NewRequestsTests, self).setUp()
 
-        self.requested_url = url('game:companions:new')
+        self.requested_url = dext_urls.url('game:companions:new')
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
 
@@ -192,12 +165,12 @@ class CreateRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(CreateRequestsTests, self).setUp()
 
-        self.requested_url = url('game:companions:create')
+        self.requested_url = dext_urls.url('game:companions:create')
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
     def post_data(self):
@@ -228,7 +201,7 @@ class CreateRequestsTests(RequestsTestsBase):
                 'material_3': tt_artifacts_relations.MATERIAL.MATERIAL_3,
                 'power_type_3': artifacts_relations.ARTIFACT_POWER_TYPE.PHYSICAL,
                 }
-        data.update(linguistics_helpers.get_word_post_data(names.generator().get_test_name(name='name'), prefix='name'))
+        data.update(linguistics_tests_helpers.get_word_post_data(names.generator().get_test_name(name='name'), prefix='name'))
         data.update(helpers.get_abilities_post_data(helpers.FAKE_ABILITIES_CONTAINER_1),)
         return data
 
@@ -251,7 +224,7 @@ class CreateRequestsTests(RequestsTestsBase):
 
         new_companion = logic.get_last_companion()
 
-        self.check_ajax_ok(response, data={'next_url': url('guide:companions:show', new_companion.id)})
+        self.check_ajax_ok(response, data={'next_url': dext_urls.url('guide:companions:show', new_companion.id)})
 
         self.assertEqual(new_companion.description, 'some-description')
         self.assertTrue(new_companion.state.is_DISABLED)
@@ -344,17 +317,17 @@ class ShowRequestsTests(RequestsTestsBase):
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url_1 = url('game:companions:show', self.companion_1.id)
-        self.requested_url_2 = url('game:companions:show', self.companion_2.id)
+        self.requested_url_1 = dext_urls.url('game:companions:show', self.companion_1.id)
+        self.requested_url_2 = dext_urls.url('game:companions:show', self.companion_2.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
         self.account_3 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
-        group_moderate = sync_group('moderate companions', ['companions.moderate_companionrecord'])
+        group_moderate = utils_permissions.sync_group('moderate companions', ['companions.moderate_companionrecord'])
         group_moderate.user_set.add(self.account_3._model)
 
     def test_anonimouse_view(self):
@@ -476,17 +449,17 @@ class InfoRequestsTests(RequestsTestsBase):
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url_1 = url('game:companions:info', self.companion_1.id)
-        self.requested_url_2 = url('game:companions:info', self.companion_2.id)
+        self.requested_url_1 = dext_urls.url('game:companions:info', self.companion_1.id)
+        self.requested_url_2 = dext_urls.url('game:companions:info', self.companion_2.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
         self.account_3 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
-        group_moderate = sync_group('moderate companions', ['companions.moderate_companionrecord'])
+        group_moderate = utils_permissions.sync_group('moderate companions', ['companions.moderate_companionrecord'])
         group_moderate.user_set.add(self.account_3._model)
 
     def test_anonimouse_view(self):
@@ -568,12 +541,12 @@ class EditRequestsTests(RequestsTestsBase):
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url = url('game:companions:edit', self.companion_1.id)
+        self.requested_url = dext_urls.url('game:companions:edit', self.companion_1.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
     def test_anonimouse_view(self):
@@ -618,12 +591,12 @@ class UpdateRequestsTests(RequestsTestsBase):
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url = url('game:companions:update', self.companion_1.id)
+        self.requested_url = dext_urls.url('game:companions:update', self.companion_1.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
     def post_data(self):
@@ -649,7 +622,7 @@ class UpdateRequestsTests(RequestsTestsBase):
                 'weapon_2': artifacts_relations.STANDARD_WEAPON.WEAPON_5,
                 'material_2': tt_artifacts_relations.MATERIAL.MATERIAL_5,
                 'power_type_2': artifacts_relations.ARTIFACT_POWER_TYPE.MOST_PHYSICAL}
-        data.update(linguistics_helpers.get_word_post_data(names.generator().get_test_name(name='new_name'), prefix='name'))
+        data.update(linguistics_tests_helpers.get_word_post_data(names.generator().get_test_name(name='new_name'), prefix='name'))
         data.update(helpers.get_abilities_post_data(helpers.FAKE_ABILITIES_CONTAINER_2),)
         return data
 
@@ -669,7 +642,7 @@ class UpdateRequestsTests(RequestsTestsBase):
             with self.check_changed(lambda: storage.companions._version):
                 with self.check_not_changed(storage.companions.__len__):
                     self.check_ajax_ok(self.post_ajax_json(self.requested_url, post_data),
-                                       data={'next_url': url('guide:companions:show', self.companion_1.id)})
+                                       data={'next_url': dext_urls.url('guide:companions:show', self.companion_1.id)})
 
         # storage.companions.refresh()
 
@@ -743,16 +716,16 @@ class EnableRequestsTests(RequestsTestsBase):
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url = url('game:companions:enable', self.companion_1.id)
+        self.requested_url = dext_urls.url('game:companions:enable', self.companion_1.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
         self.account_3 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
-        group_edit = sync_group('moderate companions', ['companions.moderate_companionrecord'])
+        group_edit = utils_permissions.sync_group('moderate companions', ['companions.moderate_companionrecord'])
         group_edit.user_set.add(self.account_3._model)
 
     def test_anonimouse_view(self):

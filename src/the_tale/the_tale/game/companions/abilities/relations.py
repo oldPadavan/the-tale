@@ -1,9 +1,11 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
 
-class METATYPE(DjangoEnum):
-    description = Column()
+smart_imports.all()
+
+
+class METATYPE(rels_django.DjangoEnum):
+    description = rels.Column()
 
     records = ( ('TRAVEL', 0, 'дорожная', 'влияет на скорость путешествия героя'),
                 ('BATTLE', 1, 'боевая', 'влияет на битвы'),
@@ -11,8 +13,8 @@ class METATYPE(DjangoEnum):
                 ('OTHER', 3, 'необычная', 'имеет особый эффект'),
                 ('UNCHANGEBLE', 4, 'неизменная', 'оказывает постоянный эффект, независимо от других свойств спутника или героя') )
 
-class EFFECT(DjangoEnum):
-    metatype = Column(unique=False)
+class EFFECT(rels_django.DjangoEnum):
+    metatype = rels.Column(unique=False)
 
     records = ( ('COHERENCE_SPEED', 0, 'скорость изменения слаженности', METATYPE.UNCHANGEBLE),
                 ('CHANGE_HABITS', 1, 'изменение характера', METATYPE.UNCHANGEBLE),
@@ -60,8 +62,8 @@ class EFFECT(DjangoEnum):
                 ('LEAVE_HERO', 38, 'покидает героя', METATYPE.UNCHANGEBLE) )
 
 
-class FIELDS(DjangoEnum):
-    common = Column(unique=False)
+class FIELDS(rels_django.DjangoEnum):
+    common = rels.Column(unique=False)
 
     records = ( ('COHERENCE_SPEED', 0, 'слаженность', False),
                 ('HONOR', 1, 'честь', False),

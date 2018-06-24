@@ -1,29 +1,7 @@
 
-import datetime
+import smart_imports
 
-from dext.common.utils import s11n
-
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.linguistics import logic as linguistics_logic
-from the_tale.linguistics import relations as linguistics_relations
-
-from the_tale.game import names
-from the_tale.game import turn
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.companions import objects
-from the_tale.game.companions import models
-from the_tale.game.companions import relations
-from the_tale.game.companions import storage
-from the_tale.game.companions.abilities import container as abilities_container
+smart_imports.all()
 
 
 def create_companion_record(utg_name,
@@ -88,7 +66,7 @@ def create_random_companion_record(name,
                                    dedication=relations.DEDICATION.BRAVE,
                                    archetype=game_relations.ARCHETYPE.NEUTRAL,
                                    state=relations.STATE.DISABLED,
-                                   abilities=abilities_container.Container(),
+                                   abilities=companions_abilities_container.Container(),
                                    mode=relations.MODE.AUTOMATIC,
                                    communication_verbal=beings_relations.COMMUNICATION_VERBAL.CAN,
                                    communication_gestures=beings_relations.COMMUNICATION_GESTURES.CAN,

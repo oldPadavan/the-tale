@@ -1,29 +1,7 @@
 
-import random
+import smart_imports
 
-from dext.common.utils import s11n
-
-from utg import words as utg_words
-
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.common.utils import bbcode
-
-from the_tale.game import names
-
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import power as p
-
-from the_tale.game import turn
-from the_tale.game import relations as game_relations
-
-from the_tale.game.companions import relations
-from the_tale.game.companions import exceptions
-
-from the_tale.game.companions.abilities import container as abilities_container
-
-from . import exceptions
+smart_imports.all()
 
 
 class Companion(object):
@@ -243,7 +221,7 @@ class Companion(object):
     def basic_damage(self):
         distribution = self.record.archetype.power_distribution
         raw_damage = f.expected_damage_to_mob_per_hit(self._hero.level)
-        return p.Damage(physic=raw_damage * distribution.physic, magic=raw_damage * distribution.magic)
+        return power.Damage(physic=raw_damage * distribution.physic, magic=raw_damage * distribution.magic)
 
     def ui_info(self):
         return {'type': self.record.id,
@@ -393,7 +371,7 @@ class CompanionRecord(names.ManageNameMixin2):
                    communication_telepathic=model.communication_telepathic,
                    intellect_level=model.intellect_level,
 
-                   abilities=abilities_container.Container.deserialize(data.get('abilities', {})),
+                   abilities=companions_abilities_container.Container.deserialize(data.get('abilities', {})),
 
                    utg_name=utg_words.Word.deserialize(data['name']),
                    description=data['description'],
@@ -407,7 +385,7 @@ class CompanionRecord(names.ManageNameMixin2):
                    weapons=weapons)
 
     @property
-    def description_html(self): return bbcode.render(self.description)
+    def description_html(self): return utils_bbcode.render(self.description)
 
     def __eq__(self, other):
         return all(getattr(self, field, None) == getattr(other, field, None)

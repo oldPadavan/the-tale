@@ -1,23 +1,15 @@
-# coding: utf-8
 
-from django import forms as django_forms
-from django.core.exceptions import ValidationError
+import smart_imports
 
-import jinja2
+smart_imports.all()
 
-from dext.forms import fields
-from dext.common.utils import jinja2 as dext_jinja2
-
-from the_tale.game.companions.abilities import effects
-from the_tale.game.companions.abilities import container
-from the_tale.game.companions.abilities import relations
 
 def ChoiceField(filter=lambda ability: True, sort_key=None):
     choices = [('', '---')] + sorted([(ability, '%s [%d]' % (ability.text, ability.rarity_delta))
                                       for ability in effects.ABILITIES.records
                                       if filter(ability)],
                                       key=sort_key)
-    return fields.TypedChoiceField(label='', choices=choices, required=False, coerce=effects.ABILITIES.get_from_name)
+    return dext_fields.TypedChoiceField(label='', choices=choices, required=False, coerce=effects.ABILITIES.get_from_name)
 
 
 def get_abilities_fields():
@@ -88,7 +80,7 @@ class AbilitiesWidget(django_forms.MultiWidget):
 
 
 
-@fields.pgf
+@dext_fields.pgf
 class AbilitiesField(django_forms.MultiValueField):
 
     def __init__(self, **kwargs):
@@ -99,10 +91,10 @@ class AbilitiesField(django_forms.MultiValueField):
         cleaned_value = super(AbilitiesField, self).clean(value)
 
         if cleaned_value.has_duplicates():
-            raise ValidationError('В описании особенностей спутника есть дубликат')
+            raise django_forms.ValidationError('В описании особенностей спутника есть дубликат')
 
         if cleaned_value.has_same_effects():
-            raise ValidationError('В описании особенностей спутника есть несколько способностей с одним эффектом')
+            raise django_forms.ValidationError('В описании особенностей спутника есть несколько способностей с одним эффектом')
 
         return cleaned_value
 

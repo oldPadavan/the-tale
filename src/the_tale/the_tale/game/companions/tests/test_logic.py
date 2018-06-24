@@ -1,37 +1,15 @@
 
-from unittest import mock
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.linguistics import relations as linguistics_relations
-
-from the_tale.game import names
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.companions import logic
-from the_tale.game.companions import models
-from the_tale.game.companions import storage
-from the_tale.game.companions import objects
-from the_tale.game.companions import relations
-
-from the_tale.game.companions.tests import helpers
+smart_imports.all()
 
 
-class LogicTests(testcase.TestCase):
+class LogicTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(LogicTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
     def test_create_companion_record(self):
         name = names.generator().get_test_name()

@@ -1,40 +1,27 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game import turn
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.companions import logic
-from the_tale.game.companions import relations
-
-from the_tale.game.companions.tests import helpers
+smart_imports.all()
 
 
-class CommonTests(testcase.TestCase):
+class CommonTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(CommonTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
-
 
     def test_rarities_abilities(self):
         for rarity, rarity_abilities in helpers.RARITIES_ABILITIES.items():
             companion = logic.create_random_companion_record('%s companion' % rarity,
                                                              abilities=rarity_abilities)
             self.assertEqual(companion.rarity, rarity)
-
 
     @mock.patch('the_tale.game.companions.objects.Companion.max_coherence', 100)
     @mock.patch('the_tale.game.heroes.habilities.companions.THOUGHTFUL.MULTIPLIER', [1, 1, 1, 1, 1])
