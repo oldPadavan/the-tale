@@ -1,14 +1,7 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.linguistics import logic as linguistics_logic
-
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.jobs import objects
-from the_tale.game.jobs import logic
+smart_imports.all()
 
 
 class FakeJob(objects.Job):
@@ -20,7 +13,7 @@ class FakeJob(objects.Job):
     NORMAL_POWER = 1000
 
 
-class JobTest(testcase.TestCase):
+class JobTest(utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.turn.number', lambda: 666)
     def setUp(self):

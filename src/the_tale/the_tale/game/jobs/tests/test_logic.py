@@ -1,22 +1,7 @@
 
-import copy
+import smart_imports
 
-from unittest import mock
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game import tt_api_impacts
-from the_tale.game import logic as game_logic
-
-from the_tale.game.places import storage as places_storage
-
-from .. import logic
-from .. import objects
-from .. import effects
+smart_imports.all()
 
 
 class FakeJob(objects.Job):
@@ -47,7 +32,7 @@ class FakeJob(objects.Job):
         return {effect: 1 for effect in effects.EFFECT.records}
 
 
-class JobPowerTests(testcase.TestCase):
+class JobPowerTests(utils_testcase.TestCase):
 
     def test_job_power__one(self):
         delta = (c.JOB_MAX_POWER - c.JOB_MIN_POWER) / 2
@@ -70,7 +55,7 @@ class JobPowerTests(testcase.TestCase):
         self.assertEqual(logic.job_power(2, [1, 2, 2]), c.JOB_MIN_POWER + delta * 2)
 
 
-class CreateJobTests(testcase.TestCase):
+class CreateJobTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -84,7 +69,7 @@ class CreateJobTests(testcase.TestCase):
         self.assertEqual(job.power_required, 1000*job.effect.power_modifier)
 
 
-class UpdateJobTests(testcase.TestCase):
+class UpdateJobTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()

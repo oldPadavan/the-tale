@@ -1,20 +1,7 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.jobs import objects
-from the_tale.game.jobs import effects
-
-from the_tale.game.heroes import logic as heroes_logic
+smart_imports.all()
 
 
 class FakeJob(objects.Job):
@@ -27,12 +14,12 @@ class FakeJob(objects.Job):
     NORMAL_POWER = 1000
 
 
-class BaseEffectsTests(testcase.TestCase):
+class BaseEffectsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(BaseEffectsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
@@ -99,12 +86,12 @@ class BaseEffectsTests(testcase.TestCase):
                          'job_diary_x_place_safety_a_z')
 
 
-class EffectsTestsBase(testcase.TestCase):
+class EffectsTestsBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(EffectsTestsBase, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)

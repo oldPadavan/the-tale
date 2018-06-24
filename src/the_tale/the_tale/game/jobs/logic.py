@@ -1,18 +1,7 @@
 
-import random
+import smart_imports
 
-from the_tale.common.utils import logic as utils_logic
-
-from the_tale.linguistics import logic as linguistics_logic
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game import turn
-from the_tale.game import tt_api_impacts
-
-from . import effects
+smart_imports.all()
 
 
 def job_power(power, powers):

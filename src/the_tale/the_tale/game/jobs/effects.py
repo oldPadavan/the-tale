@@ -1,15 +1,7 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
 
-from the_tale.amqp_environment import environment
-
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.game import effects
-from the_tale.game.balance import constants as c
-
-from the_tale.game.places import relations as places_relations
+smart_imports.all()
 
 
 class BaseEffect(object):
@@ -66,7 +58,7 @@ class BaseEffect(object):
 
         task = PostponedTaskPrototype.create(logic_task)
 
-        return lambda: environment.workers.supervisor.cmd_logic_task(account_id=account_id, task_id=task.id)
+        return lambda: amqp_environment.environment.workers.supervisor.cmd_logic_task(account_id=account_id, task_id=task.id)
 
     def message_type(self, actor, effect, direction, group):
         return 'job_diary_{actor}_{effect}_{direction}_{group}'.format(actor=actor,
@@ -86,7 +78,7 @@ class ChangePlaceAttribute(BaseEffect):
     def apply_positive(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
         effect_value = self.base_value*job_power
         effect_delta = effect_value * (1.0 / (24 * c.NORMAL_JOB_LENGTH))
-        place.effects.add(effects.Effect(name=actor_name, attribute=self.attribute, value=effect_value, delta=effect_delta))
+        place.effects.add(game_effects.Effect(name=actor_name, attribute=self.attribute, value=effect_value, delta=effect_delta))
 
         return self.apply_to_heroes(actor_type=actor_type,
                                     effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),
@@ -101,7 +93,7 @@ class ChangePlaceAttribute(BaseEffect):
 
         effect_value = self.base_value*job_power
         effect_delta = effect_value * (1.0 / c.NORMAL_JOB_LENGTH)
-        place.effects.add(effects.Effect(name=actor_name, attribute=self.attribute, value=-effect_value, delta=effect_delta))
+        place.effects.add(game_effects.Effect(name=actor_name, attribute=self.attribute, value=-effect_value, delta=effect_delta))
 
         return self.apply_to_heroes(actor_type=actor_type,
                                     effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),
@@ -167,16 +159,16 @@ def hero_profit(id, profit_name, text, power_modifier, description):
             description)
 
 
-class EFFECT_GROUP(DjangoEnum):
+class EFFECT_GROUP(rels_django.DjangoEnum):
     records = (('ON_PLACE', 0, 'на город'),
                ('ON_HEROES', 1, 'на героев'))
 
 
-class EFFECT(DjangoEnum):
-    logic = Column(single_type=False)
-    group = Column(unique=False)
-    power_modifier = Column(single_type=False, unique=False)
-    description = Column()
+class EFFECT(rels_django.DjangoEnum):
+    logic = rels.Column(single_type=False)
+    group = rels.Column(unique=False)
+    power_modifier = rels.Column(single_type=False, unique=False)
+    description = rels.Column()
 
     records = (place_attribute(1, 'PRODUCTION', base_value=c.JOB_PRODUCTION_BONUS, attribute_text='производство'),
                place_attribute(2, 'SAFETY', base_value=c.JOB_SAFETY_BONUS, attribute_text='безопасность'),
