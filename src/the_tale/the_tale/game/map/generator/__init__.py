@@ -1,6 +1,11 @@
-# coding: utf-8
 
-from the_tale.game.map.generator.updater import update_map
-from the_tale.game.map.generator import descriptors
+import smart_imports
+
+smart_imports.all()
+
+
+update_map = updater.update_map
+descriptors
+
 
 __all__ = ['update_map', 'descriptors']

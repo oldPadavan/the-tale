@@ -1,24 +1,19 @@
-# coding: utf-8
-import math
 
-from deworld.layers import VEGETATION_TYPE
+import smart_imports
 
-from the_tale.common.utils import xls
-
-from the_tale.game.map.conf import map_settings
-from the_tale.game.map.relations import TERRAIN
+smart_imports.all()
 
 
-_xls_attributes = {'filename': map_settings.TERRAIN_PRIORITIES_FIXTURE,
-                   'rows': [terrain.name for terrain in TERRAIN.records] }
+_xls_attributes = {'filename': conf.map_settings.TERRAIN_PRIORITIES_FIXTURE,
+                   'rows': [terrain.name for terrain in relations.TERRAIN.records] }
 
-_modify_row_names = lambda d: dict((getattr(TERRAIN, key), value) for key, value in list(d.items()))
+_modify_row_names = lambda d: dict((getattr(relations.TERRAIN, key), value) for key, value in list(d.items()))
 
-_HEIGHT_POINTS = _modify_row_names(xls.load_table(sheet_index=0, columns=[ round(val/10.0, 1) for val in range(-10, 11)], **_xls_attributes))
-_TEMPERATURE_POINTS = _modify_row_names(xls.load_table(sheet_index=1, columns=[ round(val/10.0, 1) for val in range(0, 11)], **_xls_attributes))
-_WETNESS_POINTS = _modify_row_names(xls.load_table(sheet_index=2, columns=[ round(val/10.0, 1) for val in range(0, 11)], **_xls_attributes))
-_VEGETATION_POINTS = _modify_row_names(xls.load_table(sheet_index=3, columns=['DESERT', 'GRASS', 'FOREST'], **_xls_attributes))
-_SOIL_POINTS = _modify_row_names(xls.load_table(sheet_index=4, columns=[ round(val/10.0, 1) for val in range(0, 11)], **_xls_attributes))
+_HEIGHT_POINTS = _modify_row_names(utils_xls.load_table(sheet_index=0, columns=[ round(val/10.0, 1) for val in range(-10, 11)], **_xls_attributes))
+_TEMPERATURE_POINTS = _modify_row_names(utils_xls.load_table(sheet_index=1, columns=[ round(val/10.0, 1) for val in range(0, 11)], **_xls_attributes))
+_WETNESS_POINTS = _modify_row_names(utils_xls.load_table(sheet_index=2, columns=[ round(val/10.0, 1) for val in range(0, 11)], **_xls_attributes))
+_VEGETATION_POINTS = _modify_row_names(utils_xls.load_table(sheet_index=3, columns=['DESERT', 'GRASS', 'FOREST'], **_xls_attributes))
+_SOIL_POINTS = _modify_row_names(utils_xls.load_table(sheet_index=4, columns=[ round(val/10.0, 1) for val in range(0, 11)], **_xls_attributes))
 
 def mid(left, right, x, left_value, right_value):
     if left == right: return left_value
@@ -44,9 +39,9 @@ class Biom(object):
     def temperature_points(self, cell): return self._cell_mid(cell.temperature, 0, 1, _TEMPERATURE_POINTS)
     def wetness_points(self, cell): return self._cell_mid(cell.wetness, 0, 1, _WETNESS_POINTS)
 
-    def vegetation_points(self, cell): return _VEGETATION_POINTS[self.id][{VEGETATION_TYPE.DESERT: 'DESERT',
-                                                                           VEGETATION_TYPE.GRASS: 'GRASS',
-                                                                           VEGETATION_TYPE.FOREST: 'FOREST'}[cell.vegetation]]
+    def vegetation_points(self, cell): return _VEGETATION_POINTS[self.id][{deworld_layers.VEGETATION_TYPE.DESERT: 'DESERT',
+                                                                           deworld_layers.VEGETATION_TYPE.GRASS: 'GRASS',
+                                                                           deworld_layers.VEGETATION_TYPE.FOREST: 'FOREST'}[cell.vegetation]]
 
     def soil_points(self, cell): return self._cell_mid(cell.soil, 0, 1, _SOIL_POINTS)
 

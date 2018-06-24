@@ -1,10 +1,7 @@
-# coding: utf-8
 
-from the_tale.game.map.relations import SPRITES
-from the_tale.game.map.storage import map_info_storage
+import smart_imports
 
-from the_tale.game.places import storage as places_storage
-from the_tale.game.roads.storage import roads_storage
+smart_imports.all()
 
 
 class CellDrawer(object):
@@ -20,7 +17,7 @@ class CellDrawer(object):
         sprites = []
 
         if self.road or self.object:
-            sprites.append((getattr(SPRITES, self.terrain.base).value, 0))
+            sprites.append((getattr(relations.SPRITES, self.terrain.base).value, 0))
         else:
             sprites.append((self.terrain.value, 0))
 
@@ -107,13 +104,13 @@ def get_road_sprite_info(m, x, y):
 
 
 def get_hero_sprite(hero):
-    return getattr(SPRITES, ('HERO_%s_%s' % (hero.race.name, hero.gender.name)).upper())
+    return getattr(relations.SPRITES, ('HERO_%s_%s' % (hero.race.name, hero.gender.name)).upper())
 
 
 def get_draw_info(biomes_map):
 
-    width = map_info_storage.item.width
-    height = map_info_storage.item.height
+    width = storage.map_info_storage.item.width
+    height = storage.map_info_storage.item.height
 
     map_images = []
     for y in range(height):
@@ -122,19 +119,19 @@ def get_draw_info(biomes_map):
             map_images[-1].append(CellDrawer())
 
 
-    roads_map = get_roads_map(width, height, roads_storage.all())
+    roads_map = get_roads_map(width, height, roads_storage.roads_storage.all())
 
     for y in range(height):
         for x in range(width):
             biom = biomes_map[y][x]
             cell_drawer = map_images[y][x]
 
-            cell_drawer.terrain = getattr(SPRITES, biom.id.name)
+            cell_drawer.terrain = getattr(relations.SPRITES, biom.id.name)
 
             if roads_map[y][x]:
                 road_sprite = get_road_sprite_info(roads_map, x, y)
 
-                cell_drawer.road = getattr(SPRITES, road_sprite['name'])
+                cell_drawer.road = getattr(relations.SPRITES, road_sprite['name'])
                 cell_drawer.road_rotate = road_sprite['rotate']
 
     for place in places_storage.places.all():
@@ -146,12 +143,12 @@ def get_draw_info(biomes_map):
         sprite_name = ('city_%s_%s' % (place.race.name.lower(), verbose_size)).upper()
 
         cell_drawer = map_images[place.y][place.x]
-        cell_drawer.object = getattr(SPRITES, sprite_name)
+        cell_drawer.object = getattr(relations.SPRITES, sprite_name)
 
     for building in places_storage.buildings.all():
         sprite_name = 'BUILDING_%s' % building.type.name
 
         cell_drawer = map_images[building.y][building.x]
-        cell_drawer.object = getattr(SPRITES, sprite_name)
+        cell_drawer.object = getattr(relations.SPRITES, sprite_name)
 
     return map_images

@@ -1,14 +1,7 @@
 
-import math
+import smart_imports
 
-import rels
-
-from the_tale.common.utils.logic import choose_from_interval, choose_nearest
-
-from the_tale.game import turn
-from the_tale.game.balance import constants as c
-
-from the_tale.game.map.conf import map_settings
+smart_imports.all()
 
 
 class WIND_DIRECTION(rels.Relation):
@@ -144,33 +137,33 @@ class WILD_TRANSPORT(rels.Relation):
 
 
 def _get_wind_direction(cell):
-    return choose_nearest(math.atan2(cell.atmo_wind[1], cell.atmo_wind[0]),
+    return utils_logic.choose_nearest(math.atan2(cell.atmo_wind[1], cell.atmo_wind[0]),
                           [(r.direction, r) for r in WIND_DIRECTION.records])
 
 
 def _get_wind_power(cell):
     wind_power = math.hypot(*cell.atmo_wind)
-    return choose_from_interval(wind_power, [(r.power, r) for r in WIND_POWER.records])
+    return utils_logic.choose_from_interval(wind_power, [(r.power, r) for r in WIND_POWER.records])
 
 
 def _get_temperature(cell):
-    return choose_from_interval(cell.mid_temperature, [(r.temperature, r) for r in TEMPERATURE_POWER.records])
+    return utils_logic.choose_from_interval(cell.mid_temperature, [(r.temperature, r) for r in TEMPERATURE_POWER.records])
 
 
 def _get_wetness(cell):
-    return choose_from_interval(cell.mid_wetness,  [(r.wetness, r) for r in WETNESS_POWER.records])
+    return utils_logic.choose_from_interval(cell.mid_wetness,  [(r.wetness, r) for r in WETNESS_POWER.records])
 
 
 def _get_safety(safety):
-    return choose_from_interval(safety,  [(r.safety, r) for r in SAFETY.records])
+    return utils_logic.choose_from_interval(safety,  [(r.safety, r) for r in SAFETY.records])
 
 
 def _get_road_transport(transport):
-    return choose_from_interval(transport,  [(r.transport, r) for r in ROAD_TRANSPORT.records])
+    return utils_logic.choose_from_interval(transport,  [(r.transport, r) for r in ROAD_TRANSPORT.records])
 
 
 def _get_wild_transport(transport):
-    return choose_from_interval(transport,  [(r.transport, r) for r in WILD_TRANSPORT.records])
+    return utils_logic.choose_from_interval(transport,  [(r.transport, r) for r in WILD_TRANSPORT.records])
 
 
 class UICell(object):
@@ -259,7 +252,7 @@ class UICells(object):
 
             for x in range(0, generator.w):
                 cell = generator.cell_info(x, y)
-                randomized_cell = cell.randomize(seed=(x+y)*turn.game_datetime().day, fraction=map_settings.CELL_RANDOMIZE_FRACTION)
+                randomized_cell = cell.randomize(seed=(x+y)*turn.game_datetime().day, fraction=conf.map_settings.CELL_RANDOMIZE_FRACTION)
                 row.append(UICell(randomized_cell))
 
             cells.append(tuple(row))

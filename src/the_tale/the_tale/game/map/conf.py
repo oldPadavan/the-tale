@@ -1,14 +1,12 @@
-# coding: utf-8
 
-import os
+import smart_imports
 
-from django.conf import settings as project_settings
+smart_imports.all()
 
-from dext.common.utils.app_settings import app_settings
 
-map_settings = app_settings('MAP',
-                            WIDTH=70 if not project_settings.TESTS_RUNNING else 4,
-                            HEIGHT=70 if not project_settings.TESTS_RUNNING else 4,
+map_settings = app_settings.app_settings('MAP',
+                            WIDTH=70 if not django_settings.TESTS_RUNNING else 4,
+                            HEIGHT=70 if not django_settings.TESTS_RUNNING else 4,
 
                             CHRONICLE_RECORDS_NUMBER=10,
 

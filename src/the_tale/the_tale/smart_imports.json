@@ -14,7 +14,8 @@
               },
               "rule_local_from_namespace": {
                   "map": {"the_tale.game.bills.bills": "the_tale.game.bills",
-                          "the_tale.game.abilities.deck": "the_tale.game.abilities"}
+                          "the_tale.game.abilities.deck": "the_tale.game.abilities",
+                          "the_tale.game.map.generator": "the_tale.game.map"}
               },
               "rule_prefix": {
                   "prefixes": [
@@ -47,7 +48,8 @@
                       {"prefix": "abilities_deck_", "module": "the_tale.game.abilities.deck"},
                       {"prefix": "lexicon_", "module": "the_tale.linguistics.lexicon"},
                       {"prefix": "forum_", "module": "the_tale.forum"},
-                      {"prefix": "chronicle_", "module": "the_tale.game.chronicle"}
+                      {"prefix": "chronicle_", "module": "the_tale.game.chronicle"},
+                      {"prefix": "deworld_", "module": "deworld"}
                   ]
               },
               "rule_custom": {
@@ -56,6 +58,7 @@
                       "tt_calendar": {"module": "tt_calendar"},
                       "tt_artifacts_relations": {"module": "tt_logic.artifacts.relations"},
                       "jinja2": {"module": "jinja2"},
+                      "deworld": {"module": "deworld"},
 
                       "dext_urls": {"module": "dext.common.utils.urls"},
                       "dext_forms": {"module": "dext.forms.forms"},
@@ -65,6 +68,7 @@
                       "dext_views": {"module": "dext.common.utils.views"},
                       "dext_old_views": {"module": "dext.views"},
                       "dext_discovering": {"module": "dext.common.utils.discovering"},
+                      "dext_settings": {"module": "dext.settings"},
 
                       "django_decorators": {"module": "django.views.decorators"},
                       "django_dispatch": {"module": "django.dispatch"},
@@ -76,6 +80,7 @@
                       "django_reverse": {"module": "django.core.urlresolvers", "attribute": "reverse"},
                       "django_transaction": {"module": "django.db.transaction"},
                       "django_apps": {"module": "django.apps"},
+                      "django_db_utils": {"module": "django.db.utils"},
 
                       "s11n": {"module": "dext.common.utils.s11n"},
 

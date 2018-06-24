@@ -1,11 +1,10 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
 
-from the_tale.game.map.conf import map_settings
+smart_imports.all()
 
 
-class META_TERRAIN(DjangoEnum):
+class META_TERRAIN(rels_django.DjangoEnum):
     records = (('WATER', 0, 'вода'),
                ('MOUNTAINS', 1, 'горы'),
                ('DESERT', 2, 'пустыня'),
@@ -14,23 +13,23 @@ class META_TERRAIN(DjangoEnum):
                ('JUNGLE', 5, 'джунгли'))
 
 
-class META_HEIGHT(DjangoEnum):
+class META_HEIGHT(rels_django.DjangoEnum):
     records = (('WATER', 0, 'вода'),
                ('PLAINS', 1, 'равнины'),
                ('HILLS', 2, 'холмы'),
                ('MOUNTAINS', 3, 'горы'))
 
 
-class META_VEGETATION(DjangoEnum):
+class META_VEGETATION(rels_django.DjangoEnum):
     records = (('NONE', 0, 'нет растительности'),
                ('GRASS', 1, 'трава'),
                ('TREES', 2, 'деревья'))
 
 
-class TERRAIN(DjangoEnum):
-    meta_height = Column(unique=False, primary=False)
-    meta_terrain = Column(unique=False, primary=False)
-    meta_vegetation = Column(unique=False, primary=False)
+class TERRAIN(rels_django.DjangoEnum):
+    meta_height = rels.Column(unique=False, primary=False)
+    meta_terrain = rels.Column(unique=False, primary=False)
+    meta_vegetation = rels.Column(unique=False, primary=False)
 
     records = (('WATER_DEEP',            0, 'глубокая вода',                   META_HEIGHT.WATER, META_TERRAIN.WATER, META_VEGETATION.NONE),
                ('WATER_SHOAL',           1, 'мелкая вода',                     META_HEIGHT.WATER, META_TERRAIN.WATER, META_VEGETATION.NONE),
@@ -62,7 +61,7 @@ class TERRAIN(DjangoEnum):
                ('HILLS_WITHERED_FOREST', 25, 'мёртвый лес на холмах',          META_HEIGHT.HILLS, META_TERRAIN.DESERT, META_VEGETATION.TREES))
 
 
-class MAP_STATISTICS(DjangoEnum):
+class MAP_STATISTICS(rels_django.DjangoEnum):
     records = (('LOWLANDS', 0, 'низины'),
                ('PLAINS', 1, 'равнины'),
                ('UPLANDS', 2, 'возвышенности'),
@@ -81,13 +80,13 @@ def sprite(name, x=0, y=0, base=None):
     if base is None:
         base = name
 
-    return (name, _SPRITE_ID, name, x * map_settings.CELL_SIZE, y * map_settings.CELL_SIZE, base)
+    return (name, _SPRITE_ID, name, x * conf.map_settings.CELL_SIZE, y * conf.map_settings.CELL_SIZE, base)
 
 
-class SPRITES(DjangoEnum):
-    x = Column(unique=False, primary=False)
-    y = Column(unique=False, primary=False)
-    base = Column(unique=False, primary=False, single_type=False)
+class SPRITES(rels_django.DjangoEnum):
+    x = rels.Column(unique=False, primary=False)
+    y = rels.Column(unique=False, primary=False)
+    base = rels.Column(unique=False, primary=False, single_type=False)
 
     records = (
         # Heroes (neutral gender equal to male)
