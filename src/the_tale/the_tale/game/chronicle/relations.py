@@ -1,11 +1,11 @@
-# coding: utf-8
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
+
+smart_imports.all()
 
 
-class RECORD_TYPE(DjangoEnum):
-    deprecated = Column(unique=False)
+class RECORD_TYPE(rels_django.DjangoEnum):
+    deprecated = rels.Column(unique=False)
 
     records = ( ('PLACE_CHANGE_NAME_BILL_STARTED', 0, 'название города: создана запись в Книге Судеб об изменении', True),
                 ('PLACE_CHANGE_NAME_BILL_SUCCESSED', 1, 'название города: одобрена запись в Книге Судеб об изменении', False),
@@ -68,13 +68,13 @@ class RECORD_TYPE(DjangoEnum):
               )
 
 
-class ACTOR_ROLE(DjangoEnum):
+class ACTOR_ROLE(rels_django.DjangoEnum):
     records = ( ('BILL', 0, 'запись в Книге Судеб'),
                 ('PLACE', 1, 'город'),
                 ('PERSON', 2, 'житель') )
 
 
-class ACTOR_TYPE(DjangoEnum):
+class ACTOR_TYPE(rels_django.DjangoEnum):
     records = ( ('BILL', 0, 'запись в Книге Судеб'),
                 ('PLACE', 1, 'город'),
                 ('PERSON', 2, 'житель') )

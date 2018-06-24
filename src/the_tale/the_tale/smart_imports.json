@@ -46,7 +46,8 @@
                       {"prefix": "abilities_", "module": "the_tale.game.abilities"},
                       {"prefix": "abilities_deck_", "module": "the_tale.game.abilities.deck"},
                       {"prefix": "lexicon_", "module": "the_tale.linguistics.lexicon"},
-                      {"prefix": "forum_", "module": "the_tale.forum"}
+                      {"prefix": "forum_", "module": "the_tale.forum"},
+                      {"prefix": "chronicle_", "module": "the_tale.game.chronicle"}
                   ]
               },
               "rule_custom": {
@@ -74,6 +75,7 @@
                       "django_postgres_fields": {"module": "django.contrib.postgres.fields"},
                       "django_reverse": {"module": "django.core.urlresolvers", "attribute": "reverse"},
                       "django_transaction": {"module": "django.db.transaction"},
+                      "django_apps": {"module": "django.apps"},
 
                       "s11n": {"module": "dext.common.utils.s11n"},
 
@@ -148,7 +150,8 @@
                       "pvp_tests_helpers": {"module": "the_tale.game.pvp.tests.helpers"},
                       "quests_tests_helpers": {"module": "the_tale.game.quests.tests.helpers"},
                       "linguistics_tests_helpers": {"module": "the_tale.linguistics.tests.helpers"},
-                      "companions_tests_helpers": {"module": "the_tale.game.companions.tests.helpers"}
+                      "companions_tests_helpers": {"module": "the_tale.game.companions.tests.helpers"},
+                      "bills_tests_helpers": {"module": "the_tale.game.bills.tests.helpers"}
                   }
               },
               "rule_stdlib": {}}

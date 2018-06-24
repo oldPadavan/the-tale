@@ -1,17 +1,11 @@
 
-from django.db import transaction
+import smart_imports
 
-import tt_calendar
-
-from the_tale.common.utils.prototypes import BasePrototype
-
-from the_tale.game.chronicle.models import Record, Actor, RecordToActor
-from the_tale.game.chronicle import exceptions
-from the_tale.game.chronicle import relations
+smart_imports.all()
 
 
-class RecordPrototype(BasePrototype):
-    _model_class = Record
+class RecordPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Record
     _readonly = ('id', 'text', 'created_at')
 
     @property
@@ -19,10 +13,10 @@ class RecordPrototype(BasePrototype):
         return tt_calendar.converter.from_turns(self._model.created_at_turn)
 
     @classmethod
-    @transaction.atomic
+    @django_transaction.atomic
     def create(cls, record):
 
-        model = Record.objects.create(type=record.TYPE.value,
+        model = models.Record.objects.create(type=record.TYPE.value,
                                       text=record.get_text(),
                                       created_at_turn=record.created_at_turn)
 
@@ -36,7 +30,7 @@ class RecordPrototype(BasePrototype):
     @classmethod
     def get_actor_records_query(cls, external_actor_prototype):
         external_actor = create_external_actor(external_actor_prototype)
-        return Record.objects.filter(actors__uid=external_actor.uid)
+        return models.Record.objects.filter(actors__uid=external_actor.uid)
 
     @classmethod
     def get_last_actor_records(cls, external_actor_prototype, number):
@@ -44,11 +38,11 @@ class RecordPrototype(BasePrototype):
 
     @classmethod
     def get_last_records(cls, number):
-        return [cls(record) for record in Record.objects.all().order_by('-created_at')[:number]]
+        return [cls(record) for record in models.Record.objects.all().order_by('-created_at')[:number]]
 
 
-class RecordToActorPrototype(BasePrototype):
-    _model_class = RecordToActor
+class RecordToActorPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.RecordToActor
     _readonly = ('id', 'role', 'actor_id', 'record_id')
 
     @classmethod
@@ -59,7 +53,7 @@ class RecordToActorPrototype(BasePrototype):
         if actor is None:
             actor = ActorPrototype.create(external_actor)
 
-        model = RecordToActor.objects.create(role=role.value,
+        model = models.RecordToActor.objects.create(role=role.value,
                                              record=record._model,
                                              actor=actor._model)
         return cls(model)
@@ -85,7 +79,6 @@ class RecordToActorPrototype(BasePrototype):
                              for record_id, record_actors_ids in records_to_actors.items()}
 
         return records_to_actors
-
 
 
 class ExternalActorBase(object):
@@ -130,15 +123,15 @@ def create_external_actor(actor):
     raise exceptions.ChronicleException('can not create external actor: unknown actor type: %r' % actor)
 
 
-class ActorPrototype(BasePrototype):
-    _model_class = Actor
+class ActorPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Actor
     _readonly = ('id', 'uid', 'bill_id', 'place_id', 'person_id')
     _get_by = ('uid',)
 
     @classmethod
     def create(cls, external_object):
 
-        model = Actor.objects.create(uid=external_object.uid,
+        model = models.Actor.objects.create(uid=external_object.uid,
                                      bill=external_object.bill._model if external_object.bill else None,
                                      place_id=external_object.place.id if external_object.place else None,
                                      person_id=external_object.person.id if external_object.person else None)
