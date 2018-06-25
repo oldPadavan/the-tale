@@ -1,27 +1,19 @@
 
-from tt_logic.beings import relations as beings_relations
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-
-from .. import logic
-from .. import forms
-from .. import relations
-
-from the_tale.linguistics.tests import helpers as linguistics_helpers
+smart_imports.all()
 
 
-class MobsFormsTests(testcase.TestCase):
+class MobsFormsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(MobsFormsTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
     def get_form_data(self):
         mob = logic.create_random_mob_record(uuid='bandit', state=relations.MOB_RECORD_STATE.DISABLED)
 
-        data = linguistics_helpers.get_word_post_data(mob.utg_name, prefix='name')
+        data = linguistics_tests_helpers.get_word_post_data(mob.utg_name, prefix='name')
 
         data.update({'level': str(mob.level),
                      'terrains': ['TERRAIN.PLANE_GRASS', 'TERRAIN.HILLS_GRASS'],

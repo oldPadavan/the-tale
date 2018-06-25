@@ -1,30 +1,14 @@
 
-from unittest import mock
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game import names
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.map import relations as map_relations
-from the_tale.game.actions import relations as actions_relations
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from .. import logic
-from .. import storage
-from .. import filters
-from .. import relations
+smart_imports.all()
 
 
-class MobsStorageTests(testcase.TestCase):
+class MobsStorageTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(MobsStorageTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.mobs = list(storage.mobs.all())
         self.mobs_candidates = [(mob, 1) for mob in self.mobs]

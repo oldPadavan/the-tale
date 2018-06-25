@@ -1,34 +1,14 @@
 
-from unittest import mock
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.linguistics import relations as linguistics_relations
-
-from the_tale.game import names
-
-from the_tale.game.logic import create_test_map
-from the_tale.game import relations as game_relations
-
-from the_tale.game.map.relations import TERRAIN
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from .. import logic
-from .. import models
-from .. import objects
-from .. import storage
-from .. import relations
-from .. import exceptions
+smart_imports.all()
 
 
-class MobsPrototypeTests(testcase.TestCase):
+class MobsPrototypeTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(MobsPrototypeTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(account_id=account.id)
@@ -95,7 +75,7 @@ class MobsPrototypeTests(testcase.TestCase):
                                        utg_name=names.generator().get_test_name(name='bandit'),
                                        description='bandint',
                                        abilities=['hit', 'thick', 'slow', 'extra_strong'],
-                                       terrains=TERRAIN.records,
+                                       terrains=map_relations.TERRAIN.records,
                                        type=beings_relations.TYPE.CIVILIZED,
                                        archetype=game_relations.ARCHETYPE.NEUTRAL,
                                        state=relations.MOB_RECORD_STATE.ENABLED)

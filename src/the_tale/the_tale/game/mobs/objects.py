@@ -1,27 +1,7 @@
 
-import random
+import smart_imports
 
-from the_tale.common.utils import bbcode
-from the_tale.common.utils.decorators import lazy_property
-
-from the_tale.game import names
-
-from the_tale.game.heroes.habilities import AbilitiesPrototype
-
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance.power import Damage
-
-from the_tale.game.map import relations as map_relations
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes import habilities
-
-from the_tale.game import relations as game_relations
-from the_tale.game.actions import relations as actions_relations
-
-from the_tale.game.artifacts import storage as artifacts_storage
-
-from . import exceptions
+smart_imports.all()
 
 
 class Mob(object):
@@ -74,7 +54,7 @@ class Mob(object):
 
     @staticmethod
     def _produce_abilities(record, level):
-        abilities = AbilitiesPrototype()
+        abilities = heroes_habilities.AbilitiesPrototype()
         for ability_id in record.abilities:
             abilities.add(ability_id, level=1)
         abilities.randomized_mob_level_up(f.max_ability_points_number(level)-len(record.abilities))
@@ -104,7 +84,7 @@ class Mob(object):
     def basic_damage(self):
         distribution = self.record.archetype.power_distribution
         raw_damage = f.expected_damage_to_hero_per_hit(self.level) * self.damage_modifier
-        return Damage(physic=raw_damage * distribution.physic, magic=raw_damage * distribution.magic)
+        return power.Damage(physic=raw_damage * distribution.physic, magic=raw_damage * distribution.magic)
 
     @property
     def mob_type(self): return self.record.type
@@ -112,7 +92,7 @@ class Mob(object):
     @property
     def is_eatable(self): return self.record.is_eatable
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def linguistics_restrictions_constants(self):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
@@ -293,7 +273,7 @@ class MobRecord(names.ManageNameMixin2):
             raise exceptions.NoWeaponsError(mob_id=self.id)
 
     @property
-    def description_html(self): return bbcode.render(self.description)
+    def description_html(self): return utils_bbcode.render(self.description)
 
     def features_verbose(self):
         features = [feature.verbose_text for feature in self.features]
@@ -311,7 +291,7 @@ class MobRecord(names.ManageNameMixin2):
         return weapons
 
     def get_abilities_objects(self):
-        abilities = [habilities.ABILITIES[ability_id] for ability_id in self.abilities]
+        abilities = [heroes_habilities.ABILITIES[ability_id] for ability_id in self.abilities]
         abilities.sort(key=lambda a: a.NAME)
         return abilities
 

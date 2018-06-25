@@ -1,30 +1,7 @@
 
-import random
+import smart_imports
 
-from dext.common.utils import s11n
-
-from utg import words as utg_words
-
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.linguistics import logic as linguistics_logic
-from the_tale.linguistics import relations as linguistics_relations
-
-from the_tale.game import relations as game_relations
-from the_tale.game import names
-
-from the_tale.game.map import relations as map_relations
-
-from the_tale.game.heroes import habilities
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from . import models
-from . import objects
-from . import relations
-from . import exceptions
+smart_imports.all()
 
 
 def create_mob_record(uuid,
@@ -93,8 +70,8 @@ def create_mob_record(uuid,
 
 
 def get_available_abilities():
-    return [a for a in habilities.ABILITIES.values()
-            if a.TYPE.is_BATTLE and a.AVAILABILITY.value & habilities.ABILITY_AVAILABILITY.FOR_MONSTERS.value]
+    return [a for a in heroes_habilities.ABILITIES.values()
+            if a.TYPE.is_BATTLE and a.AVAILABILITY.value & heroes_habilities.ABILITY_AVAILABILITY.FOR_MONSTERS.value]
 
 
 def create_random_mob_record(uuid,

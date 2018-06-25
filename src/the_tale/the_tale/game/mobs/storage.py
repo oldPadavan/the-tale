@@ -1,18 +1,10 @@
 
-from dext.common.utils import storage
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.common.utils import logic as common_logic
-
-from . import logic
-from . import models
-from . import objects
-from . import filters
-from . import exceptions
+smart_imports.all()
 
 
-class MobsStorage(storage.CachedStorage):
+class MobsStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'mob records change time'
     EXCEPTION = exceptions.MobsStorageError
 
@@ -73,7 +65,7 @@ class MobsStorage(storage.CachedStorage):
         if not mobs:
             return None
 
-        mob_record = common_logic.random_value_by_priority(mobs)
+        mob_record = utils_logic.random_value_by_priority(mobs)
 
         return objects.Mob(record_id=mob_record.id,
                            level=hero.level,

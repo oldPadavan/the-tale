@@ -1,12 +1,10 @@
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from . import storage
+smart_imports.all()
 
 
-class Mob(meta_relations.MetaType):
+class Mob(utils_meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 5
     TYPE_CAPTION = 'Монстр'
@@ -17,7 +15,7 @@ class Mob(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('guide:mobs:show', self.id)
+        return dext_urls.url('guide:mobs:show', self.id)
 
     @classmethod
     def create_from_object(cls, mob):
