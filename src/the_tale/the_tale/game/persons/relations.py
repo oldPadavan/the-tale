@@ -1,26 +1,14 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
 
-from questgen import relations as questgen_relations
-from questgen.quests.base_quest import RESULTS as QUEST_RESULTS
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game import attributes
-from the_tale.game import effects
-
-from the_tale.game.jobs import effects as jobs_effects
-
-from the_tale.game.places import relations as places_relations
-from the_tale.game.heroes import relations as heroes_relations
+smart_imports.all()
 
 
-class PERSON_TYPE(DjangoEnum):
-    male_text = Column()
-    female_text = Column()
-    building_type = Column(related_name='person_type')
-    quest_profession = Column(unique=False)
+class PERSON_TYPE(rels_django.DjangoEnum):
+    male_text = rels.Column()
+    female_text = rels.Column()
+    building_type = rels.Column(related_name='person_type')
+    quest_profession = rels.Column(unique=False)
 
     records = ( ('BLACKSMITH',   0, 'кузнец', 'кузнец', 'кузнец', places_relations.BUILDING_TYPE.SMITHY, questgen_relations.PROFESSION.BLACKSMITH),
                 ('FISHERMAN',    1, 'рыбак', 'рыбак', 'рыбачка', places_relations.BUILDING_TYPE.FISHING_LODGE, questgen_relations.PROFESSION.NONE),
@@ -46,8 +34,8 @@ class PERSON_TYPE(DjangoEnum):
                 ('HERDSMAN',     21, 'скотовод', 'скотовод', 'скотовод', places_relations.BUILDING_TYPE.RANCH, questgen_relations.PROFESSION.NONE) )
 
 
-class SOCIAL_CONNECTION_TYPE(DjangoEnum):
-    questgen_type = Column()
+class SOCIAL_CONNECTION_TYPE(rels_django.DjangoEnum):
+    questgen_type = rels.Column()
     records = ( ('PARTNER', 0, 'партнёр', questgen_relations.SOCIAL_RELATIONS.PARTNER),
                 ('CONCURRENT', 1, 'конкурент', questgen_relations.SOCIAL_RELATIONS.CONCURRENT), )
 
@@ -65,56 +53,56 @@ def job_group_priority_deserialize(data):
     return {jobs_effects.EFFECT_GROUP(int(k)): v for k, v in data.items()}
 
 
-class ATTRIBUTE(attributes.ATTRIBUTE):
+class ATTRIBUTE(game_attributes.ATTRIBUTE):
 
-    records = ( attributes.attr('ON_QUEST_HABITS', 0, 'изменения черт, если Мастер получает выгоду от задания', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=quest_result_serialize, deserializer=quest_result_deserialize),
-                attributes.attr('TERRAIN_POWER', 1, 'сила влияния на ланшафт', default=lambda: 0.1),
-                attributes.attr('TERRAIN_RADIUS_BONUS', 2, 'бонус к радиусу влияния города на ландшафт'),
-                attributes.attr('PLACES_HELP_AMOUNT', 3, 'бонус к начисляемым «влияниям» за задания', default=lambda: 1),
-                attributes.attr('POLITIC_POWER_BONUS', 4, 'бонус к влиянию за задания с участием Мастера'),
-                attributes.attr('EXPERIENCE_BONUS', 5, 'бонус к опыту за задания с участием Мастера'),
-                attributes.attr('ON_PROFITE_REWARD_BONUS', 6, 'бонус к наградами за задания, если Мастер получает выгоду'),
-                attributes.attr('FRIENDS_QUESTS_PRIORITY_BONUS', 7, 'бонус к вероятности соратникам получить задание, связанное с Мастером'),
-                attributes.attr('ENEMIES_QUESTS_PRIORITY_BONUS', 8, 'бонус к вероятности противников получить задание, связанное с Мастером'),
-                attributes.attr('POLITIC_RADIUS_BONUS', 9, 'бонус к радиусу влияния города'),
-                attributes.attr('STABILITY_RENEWING_BONUS', 10, 'бонус к скорости восстановления стабильности в городе'),
-                attributes.attr('BUILDING_AMORTIZATION_SPEED', 11, 'скорость амортизации здания Мастера', default=lambda: 1),
-                attributes.attr('ON_PROFITE_ENERGY', 12, 'прибавка энергии Хранителя за задание, если Мастер получает выгоду'),
-                attributes.attr('JOB_POWER_BONUS', 13, 'бонус к эффекту занятий Мастера'),
-                attributes.attr('JOB_GROUP_PRIORITY', 14, 'бонус к приоритету типов занятий Мастера', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=job_group_priority_serialize, deserializer=job_group_priority_deserialize),
-                attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER', 15, 'бонус к влияния для партнёров', default=lambda: 0.1),
-                attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER_MODIFIER', 16, 'бонус к влияюнию для конкурентов', default=lambda: 0.1),
-                attributes.attr('DEMOGRAPHICS_PRESSURE', 17, 'демографическое давление', default=lambda: 1) )
+    records = ( game_attributes.attr('ON_QUEST_HABITS', 0, 'изменения черт, если Мастер получает выгоду от задания', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=quest_result_serialize, deserializer=quest_result_deserialize),
+                game_attributes.attr('TERRAIN_POWER', 1, 'сила влияния на ланшафт', default=lambda: 0.1),
+                game_attributes.attr('TERRAIN_RADIUS_BONUS', 2, 'бонус к радиусу влияния города на ландшафт'),
+                game_attributes.attr('PLACES_HELP_AMOUNT', 3, 'бонус к начисляемым «влияниям» за задания', default=lambda: 1),
+                game_attributes.attr('POLITIC_POWER_BONUS', 4, 'бонус к влиянию за задания с участием Мастера'),
+                game_attributes.attr('EXPERIENCE_BONUS', 5, 'бонус к опыту за задания с участием Мастера'),
+                game_attributes.attr('ON_PROFITE_REWARD_BONUS', 6, 'бонус к наградами за задания, если Мастер получает выгоду'),
+                game_attributes.attr('FRIENDS_QUESTS_PRIORITY_BONUS', 7, 'бонус к вероятности соратникам получить задание, связанное с Мастером'),
+                game_attributes.attr('ENEMIES_QUESTS_PRIORITY_BONUS', 8, 'бонус к вероятности противников получить задание, связанное с Мастером'),
+                game_attributes.attr('POLITIC_RADIUS_BONUS', 9, 'бонус к радиусу влияния города'),
+                game_attributes.attr('STABILITY_RENEWING_BONUS', 10, 'бонус к скорости восстановления стабильности в городе'),
+                game_attributes.attr('BUILDING_AMORTIZATION_SPEED', 11, 'скорость амортизации здания Мастера', default=lambda: 1),
+                game_attributes.attr('ON_PROFITE_ENERGY', 12, 'прибавка энергии Хранителя за задание, если Мастер получает выгоду'),
+                game_attributes.attr('JOB_POWER_BONUS', 13, 'бонус к эффекту занятий Мастера'),
+                game_attributes.attr('JOB_GROUP_PRIORITY', 14, 'бонус к приоритету типов занятий Мастера', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=job_group_priority_serialize, deserializer=job_group_priority_deserialize),
+                game_attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER', 15, 'бонус к влияния для партнёров', default=lambda: 0.1),
+                game_attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER_MODIFIER', 16, 'бонус к влияюнию для конкурентов', default=lambda: 0.1),
+                game_attributes.attr('DEMOGRAPHICS_PRESSURE', 17, 'демографическое давление', default=lambda: 1) )
 
-    EFFECTS_ORDER = sorted(set(record[5] for record in records))
+ATTRIBUTE.EFFECTS_ORDER = sorted(set(record.order for record in ATTRIBUTE.records))
 
 
-class PERSONALITY(DjangoEnum):
-    effect = Column(no_index=True, unique=False)
-    male_text = Column()
-    female_text = Column()
-    description = Column()
+class PERSONALITY(rels_django.DjangoEnum):
+    effect = rels.Column(no_index=True, unique=False)
+    male_text = rels.Column()
+    female_text = rels.Column()
+    description = rels.Column()
 
 
 def personality(name, value, text, attribute, attribute_value, male_text, female_text, description):
-    return (name, value, text, effects.Effect(name=text, attribute=getattr(ATTRIBUTE, attribute), value=attribute_value), male_text, female_text, description)
+    return (name, value, text, game_effects.Effect(name=text, attribute=getattr(ATTRIBUTE, attribute), value=attribute_value), male_text, female_text, description)
 
 
 class PERSONALITY_COSMETIC(PERSONALITY):
-    records = ( personality('TRUTH_SEEKER', 0, 'правдолюб', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_HONORABLE,
-                                                                                 QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_DISHONORABLE},
+    records = ( personality('TRUTH_SEEKER', 0, 'правдолюб', 'ON_QUEST_HABITS', {questgen_quests_base_quest.RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_HONORABLE,
+                                                                                 questgen_quests_base_quest.RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_DISHONORABLE},
                 'правдолюб', 'правдолюбка', 'Увеличивает честь героя, если Мастер получает выгоду от задания и уменьшает, если вред.'),
 
-                personality('KNAVE', 1, 'плут', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_DISHONORABLE,
-                                                                     QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_HONORABLE},
+                personality('KNAVE', 1, 'плут', 'ON_QUEST_HABITS', {questgen_quests_base_quest.RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_DISHONORABLE,
+                                                                     questgen_quests_base_quest.RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_HONORABLE},
                 'плут', 'плутовка', 'Уменьшает честь героя, если Мастер получает выгоду от задания и увеличивает, если вред.'),
 
-                personality('GOOD_SOUL', 2, 'добряк', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_UNAGGRESSIVE,
-                                                                           QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_AGGRESSIVE},
+                personality('GOOD_SOUL', 2, 'добряк', 'ON_QUEST_HABITS', {questgen_quests_base_quest.RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_UNAGGRESSIVE,
+                                                                           questgen_quests_base_quest.RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_AGGRESSIVE},
                 'добряк', 'добрячка', 'Увеличивает миролюбие героя, если Мастер получает выгоду от задания и уменьшает, если вред.'),
 
-                personality('BULLY', 3, 'забияка', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_AGGRESSIVE,
-                                                                        QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_UNAGGRESSIVE},
+                personality('BULLY', 3, 'забияка', 'ON_QUEST_HABITS', {questgen_quests_base_quest.RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_AGGRESSIVE,
+                                                                        questgen_quests_base_quest.RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_UNAGGRESSIVE},
                 'забияка', 'забияка', 'Уменьшает миролюбие героя, если Мастер получает выгоду от задания и увеличивает, если вред.'),
 
                 personality('LEADER', 4, 'лидер', 'TERRAIN_POWER', 0.1,

@@ -49,6 +49,7 @@
                       {"prefix": "lexicon_", "module": "the_tale.linguistics.lexicon"},
                       {"prefix": "forum_", "module": "the_tale.forum"},
                       {"prefix": "chronicle_", "module": "the_tale.game.chronicle"},
+                      {"prefix": "jobs_", "module": "the_tale.game.jobs"},
                       {"prefix": "deworld_", "module": "deworld"}
                   ]
               },
@@ -69,6 +70,7 @@
                       "dext_old_views": {"module": "dext.views"},
                       "dext_discovering": {"module": "dext.common.utils.discovering"},
                       "dext_settings": {"module": "dext.settings"},
+                      "dext_storage": {"module": "dext.common.utils.storage"},
 
                       "django_decorators": {"module": "django.views.decorators"},
                       "django_dispatch": {"module": "django.dispatch"},
@@ -156,7 +158,9 @@
                       "quests_tests_helpers": {"module": "the_tale.game.quests.tests.helpers"},
                       "linguistics_tests_helpers": {"module": "the_tale.linguistics.tests.helpers"},
                       "companions_tests_helpers": {"module": "the_tale.game.companions.tests.helpers"},
-                      "bills_tests_helpers": {"module": "the_tale.game.bills.tests.helpers"}
+                      "bills_tests_helpers": {"module": "the_tale.game.bills.tests.helpers"},
+
+                      "questgen_quests_base_quest": {"module": "questgen.quests.base_quest"}
                   }
               },
               "rule_stdlib": {}}

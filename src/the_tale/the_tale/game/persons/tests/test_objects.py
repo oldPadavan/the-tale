@@ -1,19 +1,10 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game import turn
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.places import relations as places_relations
-
-from the_tale.game.persons.tests.helpers import create_person
-
-from the_tale.game.persons import relations
+smart_imports.all()
 
 
-class PersonTests(testcase.TestCase):
+class PersonTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(PersonTests, self).setUp()
@@ -21,9 +12,9 @@ class PersonTests(testcase.TestCase):
 
         self.persons_changed_at_turn = turn.number()
 
-        self.p1, self.p2, self.p3 = create_test_map()
+        self.p1, self.p2, self.p3 = game_logic.create_test_map()
 
-        self.person = create_person(self.p1)
+        self.person = helpers.create_person(self.p1)
 
         account = self.accounts_factory.create_account()
         self.hero_1 = heroes_logic.load_hero(account_id=account.id)

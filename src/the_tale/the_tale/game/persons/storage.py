@@ -1,10 +1,7 @@
 
-from dext.common.utils import storage as dext_storage
+import smart_imports
 
-from the_tale.game.balance import constants as c
-
-from the_tale.game.persons import models
-from the_tale.game.persons import exceptions
+smart_imports.all()
 
 
 class PersonsStorage(dext_storage.Storage):

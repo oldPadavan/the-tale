@@ -1,38 +1,7 @@
 
-import datetime
+import smart_imports
 
-from django.conf import settings as project_settings
-
-from utg import words as utg_words
-from utg import relations as utg_relations
-
-from dext.common.utils import s11n
-from dext.common.utils.urls import url
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-
-from the_tale.game import turn
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.jobs import objects as jobs_objects
-from the_tale.game.jobs import effects as jobs_effects
-from the_tale.game.jobs import logic as jobs_logic
-
-from the_tale.game.politic_power import conf as politic_power_conf
-from the_tale.game.politic_power import logic as politic_power_logic
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game.places import logic as places_logic
-from the_tale.game.places import relations as places_relations
-
-from . import models
-from . import objects
-from . import storage
-from . import conf
-from . import relations
-from . import exceptions
-from . import attributes
+smart_imports.all()
 
 
 class PersonJob(jobs_objects.Job):
@@ -313,9 +282,9 @@ def move_person_to_place(person, new_place):
 
 def api_show_url(person):
     arguments = {'api_version': conf.settings.API_SHOW_VERSION,
-                 'api_client': project_settings.API_CLIENT}
+                 'api_client': django_settings.API_CLIENT}
 
-    return url('game:persons:api-show', person.id, **arguments)
+    return dext_urls.url('game:persons:api-show', person.id, **arguments)
 
 
 def refresh_all_persons_attributes():

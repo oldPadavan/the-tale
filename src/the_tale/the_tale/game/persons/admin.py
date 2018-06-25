@@ -1,11 +1,10 @@
 
-from django.contrib import admin
+import smart_imports
 
-from . import models
-from . import logic
+smart_imports.all()
 
 
-class PersonAdmin(admin.ModelAdmin):
+class PersonAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'place', 'type', 'name', 'politic_power', 'created_at')
 
     list_filter = ('gender', 'race', 'type', 'place')
@@ -17,10 +16,10 @@ class PersonAdmin(admin.ModelAdmin):
         return logic.load_person(person_model=obj).name
 
 
-class SocialConnectionAdmin(admin.ModelAdmin):
+class SocialConnectionAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'connection', 'person_1', 'person_2', 'created_at')
     list_filter = ('connection',)
 
 
-admin.site.register(models.Person, PersonAdmin)
-admin.site.register(models.SocialConnection, SocialConnectionAdmin)
+django_admin.site.register(models.Person, PersonAdmin)
+django_admin.site.register(models.SocialConnection, SocialConnectionAdmin)

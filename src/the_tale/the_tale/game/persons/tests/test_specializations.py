@@ -1,25 +1,17 @@
-# coding: utf-8
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance import constants as c
-
-from the_tale.game.places.modifiers import CITY_MODIFIERS
+smart_imports.all()
 
 
-from the_tale.game.persons import economic
-from the_tale.game.persons import relations
-
-
-class RelationsTests(testcase.TestCase):
+class RelationsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(RelationsTests, self).setUp()
 
     def test_profession_to_city_specialization(self):
         for specializations in economic.PROFESSION_TO_SPECIALIZATIONS.values():
-            self.assertEqual(len(specializations), len(CITY_MODIFIERS.records))
+            self.assertEqual(len(specializations), len(places_modifiers.CITY_MODIFIERS.records))
 
             self.assertTrue(all([-3 <= effect <= 3 for effect in list(specializations.values())]))
 
@@ -38,7 +30,7 @@ class RelationsTests(testcase.TestCase):
         place_size = 10
         person_power = 0.3
 
-        for specialization in CITY_MODIFIERS.records:
+        for specialization in places_modifiers.CITY_MODIFIERS.records:
 
             if specialization.is_NONE:
                 continue
@@ -69,7 +61,7 @@ class RelationsTests(testcase.TestCase):
         place_size = 7
         person_power = 0.3
 
-        for specialization in CITY_MODIFIERS.records:
+        for specialization in places_modifiers.CITY_MODIFIERS.records:
 
             if specialization.is_NONE:
                 continue

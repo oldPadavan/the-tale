@@ -1,20 +1,14 @@
-# coding: utf-8
+
+import smart_imports
+
+smart_imports.all()
 
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.persons import storage
-from the_tale.game.persons import relations
-from the_tale.game.persons import logic
-
-
-class SocialConnectionsStorageTest(testcase.TestCase):
+class SocialConnectionsStorageTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(SocialConnectionsStorageTest, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.person_1_1, self.person_1_2 = self.place_1.persons[:2]
         self.person_2_1, self.person_2_2 = self.place_2.persons[:2]

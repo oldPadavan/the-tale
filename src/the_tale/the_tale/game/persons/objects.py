@@ -1,21 +1,7 @@
 
-from utg import words as utg_words
-from utg import relations as utg_relations
+import smart_imports
 
-from the_tale.game import names
-from the_tale.game import effects
-
-from the_tale.game import turn
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import relations as places_relations
-
-from . import economic
-from . import relations
+smart_imports.all()
 
 
 BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_FROM_BEST_PERSON,
@@ -211,24 +197,24 @@ class Person(names.ManageNameMixin2):
             if specialization.points_attribute is None:
                 continue
 
-            yield effects.Effect(name=self.name,
+            yield game_effects.Effect(name=self.name,
                                  attribute=specialization.points_attribute,
                                  value=self.modify_specialization_points(points))
 
     def place_effects(self):
         for attribute, modifier in self.get_economic_modifiers():
-            yield effects.Effect(name=self.name, attribute=attribute, value=modifier)
+            yield game_effects.Effect(name=self.name, attribute=attribute, value=modifier)
 
         yield from self.specialization_effects()
 
         if self.attrs.terrain_radius_bonus != 0:
-            yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.terrain_radius_bonus)
+            yield game_effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.terrain_radius_bonus)
 
         if self.attrs.politic_radius_bonus != 0:
-            yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.politic_radius_bonus)
+            yield game_effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.politic_radius_bonus)
 
         if self.attrs.stability_renewing_bonus != 0:
-            yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=self.attrs.stability_renewing_bonus)
+            yield game_effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=self.attrs.stability_renewing_bonus)
 
 
     def refresh_attributes(self):

@@ -1,36 +1,7 @@
 
-from unittest import mock
+import smart_imports
 
-from utg import words as utg_words
-from utg import relations as utg_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-from the_tale.game import turn
-from the_tale.game import names
-
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.jobs import logic as jobs_logic
-from the_tale.game.jobs import effects as jobs_effects
-
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance import constants as c
-
-from the_tale.game.places import relations as places_relations
-from the_tale.game.places import logic as places_logic
-
-from the_tale.game.heroes import logic as heroes_logic
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.politic_power import conf as politic_power_conf
-
-from .. import logic
-from .. import models
-from .. import storage
-from .. import relations
-from .. import exceptions
+smart_imports.all()
 
 
 FAKE_ECONOMIC = {places_relations.ATTRIBUTE.PRODUCTION: 1.0,
@@ -41,12 +12,12 @@ FAKE_ECONOMIC = {places_relations.ATTRIBUTE.PRODUCTION: 1.0,
                  places_relations.ATTRIBUTE.CULTURE: 0.7}
 
 
-class LogicTests(testcase.TestCase):
+class LogicTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(LogicTests, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
     def test_create_social_connection(self):
         connection_type = relations.SOCIAL_CONNECTION_TYPE.random()
@@ -113,11 +84,11 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(person.place.id, self.place_3.id)
 
 
-class PersonJobTests(testcase.TestCase):
+class PersonJobTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(PersonJobTests, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.person = self.place_1.persons[0]
 
@@ -195,11 +166,11 @@ class PersonJobTests(testcase.TestCase):
                           jobs_effects.EFFECT.HERO_ENERGY: 1.8})
 
 
-class TTPowerImpactsTests(testcase.TestCase):
+class TTPowerImpactsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(TTPowerImpactsTests, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
         self.person = self.place_1.persons[-1]
 
         self.actor_type = tt_api_impacts.OBJECT_TYPE.HERO
@@ -437,11 +408,11 @@ def fake_tt_power_impacts(**kwargs):
     yield kwargs
 
 
-class ImpactsFromHeroTests(testcase.TestCase):
+class ImpactsFromHeroTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(ImpactsFromHeroTests, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
         self.person = self.place_1.persons[-1]
         self.partner = self.place_2.persons[-1]
         self.concurrent = self.place_3.persons[-1]
